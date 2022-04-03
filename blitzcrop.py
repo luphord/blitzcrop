@@ -9,8 +9,8 @@ __email__ = """luphord@protonmail.com"""
 __version__ = """0.1.0"""
 
 
-from argparse import ArgumentParser, Namespace
-from tkinter import *
+from argparse import ArgumentParser
+from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
 app = Tk()
