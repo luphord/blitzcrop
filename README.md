@@ -3,7 +3,7 @@
 [![PyPI package](https://img.shields.io/pypi/v/blitzcrop)](https://pypi.python.org/pypi/blitzcrop)
 [![Build status](https://github.com/luphord/blitzcrop/actions/workflows/lint-test.yml/badge.svg)](https://github.com/luphord/blitzcrop/actions)
 
-GUI for interactive batch image cropping.
+GUI for interactive batch image cropping. This is *not functional yet*. Please check back later!
 
 ## Features
 * `blitzcrop` is a single file Python project
