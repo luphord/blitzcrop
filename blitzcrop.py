@@ -13,9 +13,7 @@ from argparse import ArgumentParser
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
-app = Tk()
-app.geometry("400x600")
-circle = rectangle = None
+canvas = circle = rectangle = None
 lux = luy = None
 rlx = rly = None
 
@@ -64,18 +62,6 @@ def draw_rectangle(event):
         )
 
 
-canvas = Canvas(app, bg="black")
-canvas.pack(anchor="nw", fill="both", expand=1)
-
-canvas.bind("<Button-1>", start_circle)
-canvas.bind("<B1-Motion>", draw_circle)
-canvas.bind("<Motion>", draw_rectangle)
-
-image = Image.open("img/test1.jpg")
-image = image.resize((400, 600), Image.ANTIALIAS)
-image = ImageTk.PhotoImage(image)
-canvas.create_image(0, 0, image=image, anchor="nw")
-
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"
@@ -87,6 +73,21 @@ def main() -> None:
     if args.version:
         print("""blitzcrop """ + __version__)
         return
+    app = Tk()
+    app.geometry("400x600")
+
+    global canvas
+    canvas = Canvas(app, bg="black")
+    canvas.pack(anchor="nw", fill="both", expand=1)
+
+    canvas.bind("<Button-1>", start_circle)
+    canvas.bind("<B1-Motion>", draw_circle)
+    canvas.bind("<Motion>", draw_rectangle)
+
+    image = Image.open("img/test1.jpg")
+    image = image.resize((400, 600), Image.ANTIALIAS)
+    image = ImageTk.PhotoImage(image)
+    canvas.create_image(0, 0, image=image, anchor="nw")
     app.mainloop()
 
 
