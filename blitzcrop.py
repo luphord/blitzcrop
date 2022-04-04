@@ -28,44 +28,57 @@ def project_to_circle(x, y, cx, cy, r):
     return cx + alpha * (x - cx), cy + alpha * (y - cy)
 
 
-canvas = circle = rectangle = None
-lux = luy = None
-rlx = rly = None
+class CropCanvas(Canvas):
+    """Canvas supporting image crop by mouse drag + click."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.circle = None
+        self.rectangle = None
+        self.lux = None
+        self.luy = None
+        self.rlx = None
+        self.rly = None
+        self.bind("<Button-1>", self.start_circle)
+        self.bind("<B1-Motion>", self.draw_circle)
+        self.bind("<Motion>", self.draw_rectangle)
 
-def start_circle(event):
-    global lux, luy, rlx, rly, circle, rectangle
-    if circle:
-        canvas.delete(circle)
-    if rectangle:
-        canvas.delete(rectangle)
-    lux = luy = rlx = rly = None
-    lux, luy = event.x, event.y
+    def start_circle(self, event):
+        if self.circle:
+            self.delete(self.circle)
+        if self.rectangle:
+            self.delete(self.rectangle)
+        self.rlx = self.rly = None
+        self.lux, self.luy = event.x, event.y
 
+    def draw_circle(self, event):
+        if self.circle:
+            self.delete(self.circle)
+        if self.rectangle:
+            self.delete(self.rectangle)
+        self.rlx, self.rly = event.x, event.y
+        bbox = circle_bounding_box_from_diameter(self.lux, self.luy, self.rlx, self.rly)
+        self.circle = self.create_oval(*bbox, fill=None, outline="red", width=2)
 
-def draw_circle(event):
-    global lux, luy, rlx, rly, circle, rectangle
-    if circle:
-        canvas.delete(circle)
-    if rectangle:
-        canvas.delete(rectangle)
-    rlx, rly = event.x, event.y
-    bbox = circle_bounding_box_from_diameter(lux, luy, rlx, rly)
-    circle = canvas.create_oval(*bbox, fill=None, outline="red", width=2)
-
-
-def draw_rectangle(event):
-    global lux, luy, rlx, rly, circle, rectangle
-    if rectangle:
-        canvas.delete(rectangle)
-    if lux and luy and rlx and rly:
-        cx = lux + (rlx - lux) / 2
-        cy = luy + (rly - luy) / 2
-        r = ((cx - lux) ** 2 + (cy - luy) ** 2) ** 0.5
-        x, y = project_to_circle(event.x, event.y, cx, cy, r)
-        rectangle = canvas.create_polygon(
-            lux, luy, x, y, rlx, rly, fill=None, outline="blue", width=2
-        )
+    def draw_rectangle(self, event):
+        if self.rectangle:
+            self.delete(self.rectangle)
+        if self.lux and self.luy and self.rlx and self.rly:
+            cx = self.lux + (self.rlx - self.lux) / 2
+            cy = self.luy + (self.rly - self.luy) / 2
+            r = ((cx - self.lux) ** 2 + (cy - self.luy) ** 2) ** 0.5
+            x, y = project_to_circle(event.x, event.y, cx, cy, r)
+            self.rectangle = self.create_polygon(
+                self.lux,
+                self.luy,
+                x,
+                y,
+                self.rlx,
+                self.rly,
+                fill=None,
+                outline="blue",
+                width=2,
+            )
 
 
 parser = ArgumentParser(description=__doc__)
@@ -82,13 +95,8 @@ def main() -> None:
     app = Tk()
     app.geometry("400x600")
 
-    global canvas
-    canvas = Canvas(app, bg="black")
+    canvas = CropCanvas(app, bg="black")
     canvas.pack(anchor="nw", fill="both", expand=1)
-
-    canvas.bind("<Button-1>", start_circle)
-    canvas.bind("<B1-Motion>", draw_circle)
-    canvas.bind("<Motion>", draw_rectangle)
 
     image = Image.open("img/test1.jpg")
     image = image.resize((400, 600), Image.ANTIALIAS)
