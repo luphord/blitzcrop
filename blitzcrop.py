@@ -28,6 +28,11 @@ def project_to_circle(x, y, cx, cy, r):
     return cx + alpha * (x - cx), cy + alpha * (y - cy)
 
 
+def central_inversion(x, y, cx, cy):
+    """Inversion of point (x, y) through (cx, cy), a.k.a point reflection."""
+    return 2 * cx - x, 2 * cy - y
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
@@ -67,14 +72,17 @@ class CropCanvas(Canvas):
             cx = self.lux + (self.rlx - self.lux) / 2
             cy = self.luy + (self.rly - self.luy) / 2
             r = ((cx - self.lux) ** 2 + (cy - self.luy) ** 2) ** 0.5
-            x, y = project_to_circle(event.x, event.y, cx, cy, r)
+            x1, y1 = project_to_circle(event.x, event.y, cx, cy, r)
+            x2, y2 = central_inversion(x1, y1, cx, cy)
             self.rectangle = self.create_polygon(
                 self.lux,
                 self.luy,
-                x,
-                y,
+                x1,
+                y1,
                 self.rlx,
                 self.rly,
+                x2,
+                y2,
                 fill="",
                 outline="blue",
                 width=2,
