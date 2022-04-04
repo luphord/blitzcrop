@@ -13,6 +13,15 @@ from argparse import ArgumentParser
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
+
+def circle_bounding_box_from_diameter(x1, y1, x2, y2):
+    """Compute bounding box for a circle from two arbitrary diametric points."""
+    cx = x1 + (x2 - x1) / 2
+    cy = y1 + (y2 - y1) / 2
+    r = ((cx - x1) ** 2 + (cy - y1) ** 2) ** 0.5
+    return cx - r, cy - r, cx + r, cy + r
+
+
 canvas = circle = rectangle = None
 lux = luy = None
 rlx = rly = None
@@ -35,12 +44,8 @@ def draw_circle(event):
     if rectangle:
         canvas.delete(rectangle)
     rlx, rly = event.x, event.y
-    cx = lux + (rlx - lux) / 2
-    cy = luy + (rly - luy) / 2
-    r = ((cx - lux) ** 2 + (cy - luy) ** 2) ** 0.5
-    circle = canvas.create_oval(
-        cx - r, cy - r, cx + r, cy + r, fill=None, outline="red", width=2
-    )
+    bbox = circle_bounding_box_from_diameter(lux, luy, rlx, rly)
+    circle = canvas.create_oval(*bbox, fill=None, outline="red", width=2)
 
 
 def draw_rectangle(event):
