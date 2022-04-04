@@ -58,7 +58,7 @@ class CropCanvas(Canvas):
         self.delete_circle_and_rectangle()
         self.rlx, self.rly = event.x, event.y
         bbox = circle_bounding_box_from_diameter(self.lux, self.luy, self.rlx, self.rly)
-        self.circle = self.create_oval(*bbox, fill=None, outline="red", width=2)
+        self.circle = self.create_oval(*bbox, fill="", outline="red", width=2)
 
     def draw_rectangle(self, event):
         if self.rectangle:
@@ -75,7 +75,7 @@ class CropCanvas(Canvas):
                 y,
                 self.rlx,
                 self.rly,
-                fill=None,
+                fill="",
                 outline="blue",
                 width=2,
             )
