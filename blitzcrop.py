@@ -43,19 +43,19 @@ class CropCanvas(Canvas):
         self.bind("<B1-Motion>", self.draw_circle)
         self.bind("<Motion>", self.draw_rectangle)
 
-    def start_circle(self, event):
+    def delete_circle_and_rectangle(self):
         if self.circle:
             self.delete(self.circle)
         if self.rectangle:
             self.delete(self.rectangle)
+
+    def start_circle(self, event):
+        self.delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
 
     def draw_circle(self, event):
-        if self.circle:
-            self.delete(self.circle)
-        if self.rectangle:
-            self.delete(self.rectangle)
+        self.delete_circle_and_rectangle()
         self.rlx, self.rly = event.x, event.y
         bbox = circle_bounding_box_from_diameter(self.lux, self.luy, self.rlx, self.rly)
         self.circle = self.create_oval(*bbox, fill=None, outline="red", width=2)
