@@ -22,6 +22,12 @@ def circle_bounding_box_from_diameter(x1, y1, x2, y2):
     return cx - r, cy - r, cx + r, cy + r
 
 
+def project_to_circle(x, y, cx, cy, r):
+    """Project point (x, y) onto circle of radius r around (cx, cy)."""
+    alpha = r / ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+    return cx + alpha * (x - cx), cy + alpha * (y - cy)
+
+
 canvas = circle = rectangle = None
 lux = luy = None
 rlx = rly = None
@@ -55,15 +61,10 @@ def draw_rectangle(event):
     if lux and luy and rlx and rly:
         cx = lux + (rlx - lux) / 2
         cy = luy + (rly - luy) / 2
-        r_squared = (cx - lux) ** 2 + (cy - luy) ** 2
-        r = r_squared**0.5
-        dy = event.y - cy
-        dy = min(max(dy, -r), r)
-        dx_squared = r_squared - dy**2
-        dx_squared = max(dx_squared, 0)
-        dx = dx_squared**0.5
+        r = ((cx - lux) ** 2 + (cy - luy) ** 2) ** 0.5
+        x, y = project_to_circle(event.x, event.y, cx, cy, r)
         rectangle = canvas.create_polygon(
-            lux, luy, cx + dx, cy + dy, rlx, rly, fill=None, outline="blue", width=2
+            lux, luy, x, y, rlx, rly, fill=None, outline="blue", width=2
         )
 
 
