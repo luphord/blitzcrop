@@ -60,10 +60,13 @@ class CropCanvas(Canvas):
         else:
             # image is narrower than window => cut away width
             iw, ih = h * ar, h
-        image_resized = self.image.resize((int(iw), int(ih)), Image.NEAREST)
+        iw, ih = int(iw), int(ih)
+        image_resized = self.image.resize((iw, ih), Image.NEAREST)
         # member variable is required for photo image to prevent garbage collection
         self._photo_image = ImageTk.PhotoImage(image_resized)
-        self.create_image(0, 0, image=self._photo_image, anchor="nw")
+        self.create_image(
+            (w - iw) // 2, (h - ih) // 2, image=self._photo_image, anchor="nw"
+        )
 
     def on_resize(self, event):
         self.config(width=event.width, height=event.height)
