@@ -47,6 +47,10 @@ class CropCanvas(Canvas):
         self.bind("<Button-1>", self.start_circle)
         self.bind("<B1-Motion>", self.draw_circle)
         self.bind("<Motion>", self.draw_rectangle)
+        self.bind("<Configure>", self.on_resize)
+
+    def on_resize(self, event):
+        self.config(width=event.width, height=event.height)
 
     def delete_circle_and_rectangle(self):
         if self.circle:
