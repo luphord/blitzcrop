@@ -49,16 +49,25 @@ class CropCanvas(Canvas):
         self.bind("<B1-Motion>", self.draw_circle)
         self.bind("<Motion>", self.draw_rectangle)
         self.bind("<Configure>", self.on_resize)
-        self.redraw_image()
 
     def redraw_image(self):
-        image_resized = self.image.resize((400, 600), Image.ANTIALIAS)
+        self.winfo_toplevel().update_idletasks()
+        w, h = self.winfo_width(), self.winfo_height()
+        ar = self.image.width / self.image.height
+        if ar >= w / h:
+            # image is wider than window => cut away height
+            iw, ih = w, w / ar
+        else:
+            # image is narrower than window => cut away width
+            iw, ih = h * ar, h
+        image_resized = self.image.resize((int(iw), int(ih)), Image.NEAREST)
         # member variable is required for photo image to prevent garbage collection
         self._photo_image = ImageTk.PhotoImage(image_resized)
         self.create_image(0, 0, image=self._photo_image, anchor="nw")
 
     def on_resize(self, event):
         self.config(width=event.width, height=event.height)
+        self.redraw_image()
 
     def delete_circle_and_rectangle(self):
         if self.circle:
@@ -118,7 +127,7 @@ def main() -> None:
     image = Image.open("img/test1.jpg")
     canvas = CropCanvas(image, app, bg="black")
     canvas.pack(anchor="nw", fill="both", expand=1)
-
+    canvas.redraw_image()
     app.mainloop()
 
 
