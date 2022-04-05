@@ -36,8 +36,9 @@ def central_inversion(x, y, cx, cy):
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, image, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.image = image
         self.circle = None
         self.rectangle = None
         self.lux = None
@@ -48,6 +49,13 @@ class CropCanvas(Canvas):
         self.bind("<B1-Motion>", self.draw_circle)
         self.bind("<Motion>", self.draw_rectangle)
         self.bind("<Configure>", self.on_resize)
+        self.redraw_image()
+
+    def redraw_image(self):
+        image_resized = self.image.resize((400, 600), Image.ANTIALIAS)
+        # member variable is required for photo image to prevent garbage collection
+        self._photo_image = ImageTk.PhotoImage(image_resized)
+        self.create_image(0, 0, image=self._photo_image, anchor="nw")
 
     def on_resize(self, event):
         self.config(width=event.width, height=event.height)
@@ -107,13 +115,10 @@ def main() -> None:
     app = Tk()
     app.geometry("400x600")
 
-    canvas = CropCanvas(app, bg="black")
+    image = Image.open("img/test1.jpg")
+    canvas = CropCanvas(image, app, bg="black")
     canvas.pack(anchor="nw", fill="both", expand=1)
 
-    image = Image.open("img/test1.jpg")
-    image = image.resize((400, 600), Image.ANTIALIAS)
-    image = ImageTk.PhotoImage(image)
-    canvas.create_image(0, 0, image=image, anchor="nw")
     app.mainloop()
 
 
