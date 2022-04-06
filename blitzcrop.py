@@ -45,6 +45,7 @@ class CropCanvas(Canvas):
         self.luy = None
         self.rlx = None
         self.rly = None
+        self.selected_rectangle = None
         self.bind("<Button-1>", self.start_circle)
         self.bind("<B1-Motion>", self.draw_circle)
         self.bind("<Motion>", self.draw_rectangle)
@@ -77,8 +78,11 @@ class CropCanvas(Canvas):
             self.delete(self.circle)
         if self.rectangle:
             self.delete(self.rectangle)
+        self.selected_rectangle = None
 
     def start_circle(self, event):
+        if self.selected_rectangle:
+            print(self.selected_rectangle)
         self.delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
@@ -98,7 +102,7 @@ class CropCanvas(Canvas):
             r = ((cx - self.lux) ** 2 + (cy - self.luy) ** 2) ** 0.5
             x1, y1 = project_to_circle(event.x, event.y, cx, cy, r)
             x2, y2 = central_inversion(x1, y1, cx, cy)
-            self.rectangle = self.create_polygon(
+            self.selected_rectangle = (
                 self.lux,
                 self.luy,
                 x1,
@@ -107,6 +111,9 @@ class CropCanvas(Canvas):
                 self.rly,
                 x2,
                 y2,
+            )
+            self.rectangle = self.create_polygon(
+                *self.selected_rectangle,
                 fill="",
                 outline="blue",
                 width=2,
