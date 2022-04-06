@@ -33,6 +33,18 @@ def central_inversion(x, y, cx, cy):
     return 2 * cx - x, 2 * cy - y
 
 
+def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
+    """Compute image size to embed into canvas."""
+    ar = image_width / image_height
+    if ar >= canvas_width / canvas_height:
+        # image is wider than window => cut away height
+        iw, ih = canvas_width, canvas_width / ar
+    else:
+        # image is narrower than window => cut away width
+        iw, ih = canvas_height * ar, canvas_height
+    return int(iw), int(ih)
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
@@ -54,14 +66,7 @@ class CropCanvas(Canvas):
     def redraw_image(self):
         self.winfo_toplevel().update_idletasks()
         w, h = self.winfo_width(), self.winfo_height()
-        ar = self.image.width / self.image.height
-        if ar >= w / h:
-            # image is wider than window => cut away height
-            iw, ih = w, w / ar
-        else:
-            # image is narrower than window => cut away width
-            iw, ih = h * ar, h
-        iw, ih = int(iw), int(ih)
+        iw, ih = rescaled_image_size(w, h, self.image.width, self.image.height)
         image_resized = self.image.resize((iw, ih), Image.NEAREST)
         # member variable is required for photo image to prevent garbage collection
         self._photo_image = ImageTk.PhotoImage(image_resized)
