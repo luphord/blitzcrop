@@ -46,9 +46,9 @@ class CropCanvas(Canvas):
         self.rlx = None
         self.rly = None
         self.selected_rectangle = None
-        self.bind("<Button-1>", self.start_circle)
-        self.bind("<B1-Motion>", self.draw_circle)
-        self.bind("<Motion>", self.draw_rectangle)
+        self.bind("<Button-1>", self.on_click)
+        self.bind("<B1-Motion>", self.on_drag)
+        self.bind("<Motion>", self.on_mousemove)
         self.bind("<Configure>", self.on_resize)
 
     def redraw_image(self):
@@ -73,27 +73,27 @@ class CropCanvas(Canvas):
         self.config(width=event.width, height=event.height)
         self.redraw_image()
 
-    def delete_circle_and_rectangle(self):
+    def _delete_circle_and_rectangle(self):
         if self.circle:
             self.delete(self.circle)
         if self.rectangle:
             self.delete(self.rectangle)
         self.selected_rectangle = None
 
-    def start_circle(self, event):
+    def on_click(self, event):
         if self.selected_rectangle:
             print(self.selected_rectangle)
-        self.delete_circle_and_rectangle()
+        self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
 
-    def draw_circle(self, event):
-        self.delete_circle_and_rectangle()
+    def on_drag(self, event):
+        self._delete_circle_and_rectangle()
         self.rlx, self.rly = event.x, event.y
         bbox = circle_bounding_box_from_diameter(self.lux, self.luy, self.rlx, self.rly)
         self.circle = self.create_oval(*bbox, fill="", outline="red", width=2)
 
-    def draw_rectangle(self, event):
+    def on_mousemove(self, event):
         if self.rectangle:
             self.delete(self.rectangle)
         if self.lux and self.luy and self.rlx and self.rly:
