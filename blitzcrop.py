@@ -50,7 +50,8 @@ def rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y):
     """Compute rotation angle by upper left and right points of selected rectangle."""
     dx = upper_right_x - upper_left_x
     dy = upper_right_y - upper_left_y
-    return atan(dy / dx)
+    # minus for correcting that y increases downwards
+    return -atan(dy / dx)
 
 
 class CropCanvas(Canvas):
@@ -99,7 +100,7 @@ class CropCanvas(Canvas):
     def on_click(self, event):
         if self.selected_rectangle:
             r = self.selected_rectangle
-            print(degrees(rotation_angle(r[0], r[1], r[6], r[7])))
+            print(degrees(rotation_angle(r[0], r[1], r[2], r[3])))
             print(self.selected_rectangle)
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
