@@ -1,7 +1,12 @@
 import unittest
 from math import cos, sin, pi
 
-from blitzcrop import parser, circle_bounding_box_from_diameter, project_to_circle
+from blitzcrop import (
+    parser,
+    circle_bounding_box_from_diameter,
+    project_to_circle,
+    rescaled_image_size,
+)
 
 
 class TestBlitzcrop(unittest.TestCase):
@@ -54,3 +59,30 @@ class TestBlitzcrop(unittest.TestCase):
             p = project_to_circle(x, y, 0, 0, 100)
             self.assertAlmostEqual(100, (p[0] ** 2 + p[1] ** 2) ** 0.5)
             phi += 0.1 * pi
+
+    def test_rescaled_image_size(self):
+        # square image
+        s = rescaled_image_size(100, 100, 100, 100)
+        self.assertPointAlmostEqual((100, 100), s)
+        s = rescaled_image_size(200, 100, 100, 100)
+        self.assertPointAlmostEqual((100, 100), s)
+        s = rescaled_image_size(100, 50, 100, 100)
+        self.assertPointAlmostEqual((50, 50), s)
+        s = rescaled_image_size(200, 150, 100, 100)
+        self.assertPointAlmostEqual((150, 150), s)
+        s = rescaled_image_size(150, 200, 100, 100)
+        self.assertPointAlmostEqual((150, 150), s)
+        # portrait image
+        s = rescaled_image_size(100, 100, 100, 200)
+        self.assertPointAlmostEqual((50, 100), s)
+        s = rescaled_image_size(200, 300, 100, 200)
+        self.assertPointAlmostEqual((150, 300), s)
+        s = rescaled_image_size(300, 200, 100, 200)
+        self.assertPointAlmostEqual((100, 200), s)
+        # landscape image
+        s = rescaled_image_size(100, 100, 200, 100)
+        self.assertPointAlmostEqual((100, 50), s)
+        s = rescaled_image_size(200, 300, 200, 100)
+        self.assertPointAlmostEqual((200, 100), s)
+        s = rescaled_image_size(300, 200, 200, 100)
+        self.assertPointAlmostEqual((300, 150), s)
