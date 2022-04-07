@@ -61,6 +61,7 @@ class CropCanvas(Canvas):
         self.image = image
         self.circle = None
         self.rectangle = None
+        self.projected = None
         self.lux = None
         self.luy = None
         self.rlx = None
@@ -91,6 +92,8 @@ class CropCanvas(Canvas):
             self.delete(self.circle)
         if self.rectangle:
             self.delete(self.rectangle)
+        if self.projected:
+            self.delete(self.projected)
         self.selected_rectangle = None
 
     def on_click(self, event):
@@ -111,11 +114,16 @@ class CropCanvas(Canvas):
     def on_mousemove(self, event):
         if self.rectangle:
             self.delete(self.rectangle)
+        if self.projected:
+            self.delete(self.projected)
         if self.lux and self.luy and self.rlx and self.rly:
             cx = self.lux + (self.rlx - self.lux) / 2
             cy = self.luy + (self.rly - self.luy) / 2
             r = ((cx - self.lux) ** 2 + (cy - self.luy) ** 2) ** 0.5
             x1, y1 = project_to_circle(event.x, event.y, cx, cy, r)
+            self.projected = self.create_oval(
+                x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill="yellow"
+            )
             x2, y2 = central_inversion(x1, y1, cx, cy)
             self.selected_rectangle = (
                 self.lux,
