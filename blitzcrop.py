@@ -10,6 +10,7 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser
+from math import atan, degrees
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
@@ -43,6 +44,13 @@ def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
         # image is narrower than window => cut away width
         iw, ih = canvas_height * ar, canvas_height
     return int(iw), int(ih)
+
+
+def rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y):
+    """Compute rotation angle by upper left and right points of selected rectangle."""
+    dx = upper_right_x - upper_left_x
+    dy = upper_right_y - upper_left_y
+    return atan(dy / dx)
 
 
 class CropCanvas(Canvas):
@@ -87,6 +95,8 @@ class CropCanvas(Canvas):
 
     def on_click(self, event):
         if self.selected_rectangle:
+            r = self.selected_rectangle
+            print(degrees(rotation_angle(r[0], r[1], r[6], r[7])))
             print(self.selected_rectangle)
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
