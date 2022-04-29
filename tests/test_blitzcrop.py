@@ -1,11 +1,12 @@
 import unittest
-from math import cos, sin, pi
+from math import cos, sin, pi, degrees
 
 from blitzcrop import (
     parser,
     circle_bounding_box_from_diameter,
     project_to_circle,
     rescaled_image_size,
+    rotation_angle,
 )
 
 
@@ -86,3 +87,15 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertPointAlmostEqual((200, 100), s)
         s = rescaled_image_size(300, 200, 200, 100)
         self.assertPointAlmostEqual((300, 150), s)
+
+    def test_rotation_angle(self):
+        angle = rotation_angle(100, 100, 200, 100)
+        self.assertAlmostEqual(0, angle)
+        angle = degrees(rotation_angle(100, 100, 200, 200))
+        self.assertAlmostEqual(-45, angle)
+        angle = degrees(rotation_angle(100, 100, 200, 0))
+        self.assertAlmostEqual(45, angle)
+        angle = degrees(rotation_angle(100, 100, 100, 200))
+        self.assertAlmostEqual(-90, angle)
+        angle = degrees(rotation_angle(100, 100, 100, 0))
+        self.assertAlmostEqual(90, angle)
