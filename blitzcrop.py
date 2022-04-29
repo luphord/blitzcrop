@@ -47,7 +47,9 @@ def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
 
 
 def rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y):
-    """Compute rotation angle by upper left and right points of selected rectangle."""
+    """Compute rotation angle by upper left and right points of selected rectangle.
+    This is the angle *by which the selection is rotated*. To correct for it, you
+    have to rotate the image *minus* this angle."""
     dx = upper_right_x - upper_left_x
     dy = upper_right_y - upper_left_y
     # minus for correcting that y increases downwards
