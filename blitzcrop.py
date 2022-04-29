@@ -63,6 +63,15 @@ def containing_rectangle(x1, y1, x2, y2, x3, y3, x4, y4):
     return min(xs), min(ys), max(xs), max(ys)
 
 
+def canvas_coordinates_to_image(
+    x, y, canvas_width, canvas_height, image_width, image_height
+):
+    """Transform canvas coordinates to image coordinates."""
+    iw, ih = rescaled_image_size(canvas_width, canvas_height, image_width, image_height)
+    ix, iy = (canvas_width - iw) // 2, (canvas_height - ih) // 2
+    return (x - ix) / iw * image_width, (y - iy) / ih * image_height
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
@@ -109,7 +118,6 @@ class CropCanvas(Canvas):
     def on_click(self, event):
         if self.selected_rectangle:
             r = self.selected_rectangle
-            print(degrees(rotation_angle(r[0], r[1], r[2], r[3])))
             print(self.selected_rectangle)
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
