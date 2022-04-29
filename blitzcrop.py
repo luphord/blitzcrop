@@ -10,7 +10,7 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser
-from math import atan, degrees
+from math import atan, degrees, pi, copysign
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
@@ -53,7 +53,7 @@ def rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y):
     dx = upper_right_x - upper_left_x
     dy = upper_right_y - upper_left_y
     # minus for correcting that y increases downwards
-    return -atan(dy / dx)
+    return -(atan(dy / dx) if dx != 0 else copysign(0.5 * pi, dy))
 
 
 class CropCanvas(Canvas):
