@@ -56,6 +56,13 @@ def rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y):
     return -(atan(dy / dx) if dx != 0 else copysign(0.5 * pi, dy))
 
 
+def containing_rectangle(x1, y1, x2, y2, x3, y3, x4, y4):
+    """Compute smallest rectangle containing the given shape (rotated rectangle)."""
+    xs = [x1, x2, x3, x4]
+    ys = [y1, y2, y3, y4]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
