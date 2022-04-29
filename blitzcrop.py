@@ -131,7 +131,17 @@ class CropCanvas(Canvas):
     def on_click(self, event):
         if self.selected_rectangle:
             r = self.selected_rectangle
-            print(self.selected_rectangle)
+            canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
+            x1, y1, x2, y2 = canvas_rectangle_to_image(
+                *containing_rectangle(*self.selected_rectangle),
+                canvas_width,
+                canvas_height,
+                self.image.width,
+                self.image.height,
+            )
+            self.image.crop((x1, y1, x2, y2)).rotate(
+                -degrees(rotation_angle(r[0], r[1], r[2], r[3])), expand=True
+            ).show()
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
