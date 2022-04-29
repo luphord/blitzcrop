@@ -72,6 +72,19 @@ def canvas_coordinates_to_image(
     return (x - ix) / iw * image_width, (y - iy) / ih * image_height
 
 
+def canvas_rectangle_to_image(
+    x1, y1, x2, y2, canvas_width, canvas_height, image_width, image_height
+):
+    """Transform rectangle in canvas coordinates to rectangle in image coordinates."""
+    xi1, yi1 = canvas_coordinates_to_image(
+        x1, y1, canvas_width, canvas_height, image_width, image_height
+    )
+    xi2, yi2 = canvas_coordinates_to_image(
+        x2, y2, canvas_width, canvas_height, image_width, image_height
+    )
+    return xi1, yi1, xi2, yi2
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
