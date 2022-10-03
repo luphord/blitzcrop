@@ -10,7 +10,7 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser
-from math import atan, degrees, pi, copysign
+from math import atan, sin, degrees, pi, copysign
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
@@ -61,6 +61,16 @@ def containing_rectangle(x1, y1, x2, y2, x3, y3, x4, y4):
     xs = [x1, x2, x3, x4]
     ys = [y1, y2, y3, y4]
     return min(xs), min(ys), max(xs), max(ys)
+
+
+def containing_rectangle_offsets(
+    upper_left_x, upper_left_y, upper_right_x, upper_right_y, lower_left_y
+):
+    """Compute offset between selected rectangle and containing rectangle."""
+    d_upper_y = upper_right_y - upper_left_y
+    d_lower_y = upper_left_y - lower_left_y
+    alpha = rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y)
+    return (d_lower_y * sin(alpha), d_upper_y * sin(alpha))
 
 
 def canvas_coordinates_to_image(
@@ -142,6 +152,7 @@ class CropCanvas(Canvas):
             self.image.crop((x1, y1, x2, y2)).rotate(
                 -degrees(rotation_angle(r[0], r[1], r[2], r[3])), expand=True
             ).show()
+            print(containing_rectangle_offsets(r[0], r[1], r[2], r[3], r[7]))
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
