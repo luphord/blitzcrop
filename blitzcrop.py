@@ -149,10 +149,21 @@ class CropCanvas(Canvas):
                 self.image.width,
                 self.image.height,
             )
-            self.image.crop((x1, y1, x2, y2)).rotate(
+            cont_rect = self.image.crop((x1, y1, x2, y2)).rotate(
                 -degrees(rotation_angle(r[0], r[1], r[2], r[3])), expand=True
+            )
+            cont_rect_offsets = containing_rectangle_offsets(
+                r[0], r[1], r[2], r[3], r[7]
+            )
+            iw, _ = rescaled_image_size(
+                canvas_width, canvas_height, self.image.width, self.image.height
+            )
+            cont_rect_offsets = tuple(
+                v * self.image.width // iw for v in cont_rect_offsets
+            )
+            cont_rect.crop(
+                (*cont_rect_offsets, cont_rect.width, cont_rect.height)
             ).show()
-            print(containing_rectangle_offsets(r[0], r[1], r[2], r[3], r[7]))
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
