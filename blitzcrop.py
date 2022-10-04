@@ -10,7 +10,7 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser
-from math import atan, sin, degrees, pi, copysign
+from math import atan, sin, cos, degrees, pi, copysign
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
@@ -70,7 +70,7 @@ def containing_rectangle_offsets(
     d_upper_y = upper_right_y - upper_left_y
     d_lower_y = upper_left_y - lower_left_y
     alpha = rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y)
-    return (d_lower_y * sin(alpha), d_upper_y * sin(alpha))
+    return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
 
 
 def canvas_coordinates_to_image(
