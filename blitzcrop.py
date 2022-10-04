@@ -158,12 +158,8 @@ class CropCanvas(Canvas):
             iw, _ = rescaled_image_size(
                 canvas_width, canvas_height, self.image.width, self.image.height
             )
-            cont_rect_offsets = tuple(
-                v * self.image.width // iw for v in cont_rect_offsets
-            )
-            cont_rect.crop(
-                (*cont_rect_offsets, cont_rect.width, cont_rect.height)
-            ).show()
+            ow, oh = tuple(v * self.image.width // iw for v in cont_rect_offsets)
+            cont_rect.crop((ow, oh, cont_rect.width - ow, cont_rect.height - oh)).show()
         self._delete_circle_and_rectangle()
         self.rlx = self.rly = None
         self.lux, self.luy = event.x, event.y
