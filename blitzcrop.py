@@ -150,7 +150,9 @@ class CropCanvas(Canvas):
                 self.image.height,
             )
             cont_rect = self.image.crop((x1, y1, x2, y2)).rotate(
-                -degrees(rotation_angle(r[0], r[1], r[2], r[3])), expand=True
+                -degrees(rotation_angle(r[0], r[1], r[2], r[3])),
+                expand=True,
+                resample=Image.Resampling.BICUBIC,
             )
             cont_rect_offsets = containing_rectangle_offsets(
                 r[0], r[1], r[2], r[3], r[7]
