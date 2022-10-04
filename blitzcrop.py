@@ -118,7 +118,7 @@ class CropCanvas(Canvas):
         self.winfo_toplevel().update_idletasks()
         w, h = self.winfo_width(), self.winfo_height()
         iw, ih = rescaled_image_size(w, h, self.image.width, self.image.height)
-        image_resized = self.image.resize((iw, ih), Image.NEAREST)
+        image_resized = self.image.resize((iw, ih), Image.Resampling.NEAREST)
         # member variable is required for photo image to prevent garbage collection
         self._photo_image = ImageTk.PhotoImage(image_resized)
         self.create_image(
