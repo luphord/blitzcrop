@@ -7,6 +7,8 @@ from blitzcrop import (
     project_to_circle,
     rescaled_image_size,
     rotation_angle,
+    ImagePoint,
+    CanvasPoint,
 )
 
 
@@ -26,6 +28,21 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertEqual(args.version, False)
         args = parser.parse_args(["--version"])
         self.assertEqual(args.version, True)
+
+    def test_point_matching_type_assertions(self):
+        a = ImagePoint(1, 2)
+        b = ImagePoint(3, 4)
+        c = CanvasPoint(5, 6)
+        self.assertRaises(AssertionError, lambda: a + c)
+        self.assertRaises(AssertionError, lambda: a - c)
+        a + b
+        a - b
+
+    def test_point_arithmetic(self):
+        a = ImagePoint(1, 2)
+        b = ImagePoint(3, 4)
+        self.assertEqual(a + b - b, a)
+        self.assertEqual(0.5 * a * 2, a)
 
     def test_circle_bounding_box_from_diameter(self):
         bbox = circle_bounding_box_from_diameter(0, 0, 0, 0)

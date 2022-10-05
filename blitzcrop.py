@@ -11,6 +11,7 @@ __version__ = """0.1.0"""
 
 from argparse import ArgumentParser
 from math import atan, sin, cos, degrees, pi, copysign
+from abc import ABC, abstractmethod
 from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
@@ -93,6 +94,64 @@ def canvas_rectangle_to_image(
         x2, y2, canvas_width, canvas_height, image_width, image_height
     )
     return xi1, yi1, xi2, yi2
+
+
+class Point(ABC):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.x}, {self.y})"
+
+    def assert_same_type(self, other):
+        assert type(self) == type(other), (
+            f"Cannot perform operation as self is of type "
+            f"{type(self).__name__} while other is of type {type(other).__name__}"
+        )
+
+    def __eq__(self, other):
+        return type(self) == type(other) and self.x == other.x and self.y == other.y
+
+    def __add__(self, other):
+        self.assert_same_type(other)
+        return type(self)(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        self.assert_same_type(other)
+        return type(self)(self.x - other.x, self.y - other.y)
+
+    def __mul__(self, factor):
+        return type(self)(self.x * factor, self.y * factor)
+
+    def __rmul__(self, factor):
+        return self * factor
+
+    @abstractmethod
+    def to_image_coordinates(
+        self, canvas_width, canvas_height, image_width, image_height
+    ):
+        pass
+
+
+class ImagePoint(Point):
+    def to_image_coordinates(
+        self, canvas_width, canvas_height, image_width, image_height
+    ):
+        return self
+
+
+class CanvasPoint(Point):
+    def to_image_coordinates(
+        self, canvas_width, canvas_height, image_width, image_height
+    ):
+        iw, ih = rescaled_image_size(
+            canvas_width, canvas_height, image_width, image_height
+        )
+        ix, iy = (canvas_width - iw) // 2, (canvas_height - ih) // 2
+        return ImagePoint(
+            (self.x - ix) / iw * image_width, (self.y - iy) / ih * image_height
+        )
 
 
 class CropCanvas(Canvas):
