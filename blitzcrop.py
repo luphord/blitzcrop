@@ -16,14 +16,6 @@ from tkinter import Tk, Canvas
 from PIL import Image, ImageTk
 
 
-def circle_bounding_box_from_diameter(x1, y1, x2, y2):
-    """Compute bounding box for a circle from two arbitrary diametric points."""
-    cx = x1 + (x2 - x1) / 2
-    cy = y1 + (y2 - y1) / 2
-    r = ((cx - x1) ** 2 + (cy - y1) ** 2) ** 0.5
-    return cx - r, cy - r, cx + r, cy + r
-
-
 def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     """Compute image size to embed into canvas."""
     ar = image_width / image_height
@@ -135,6 +127,12 @@ class Point(ABC):
         # minus for correcting that y increases downwards
         return -(atan(dy / dx) if dx != 0 else copysign(0.5 * pi, dy))
 
+    def circle_bounding_box_from_diameter(self, other):
+        """Compute bounding box for a circle from diametric points self and other."""
+        center = self + 0.5 * (other - self)
+        radius = abs(center - self)
+        return center - type(self)(radius, radius), center + type(self)(radius, radius)
+
     @abstractmethod
     def to_image_coordinates(
         self, canvas_width, canvas_height, image_width, image_height
@@ -238,8 +236,12 @@ class CropCanvas(Canvas):
     def on_drag(self, event):
         self._delete_circle_and_rectangle()
         self.rlx, self.rly = event.x, event.y
-        bbox = circle_bounding_box_from_diameter(self.lux, self.luy, self.rlx, self.rly)
-        self.circle = self.create_oval(*bbox, fill="", outline="red", width=2)
+        lu = CanvasPoint(self.lux, self.luy)
+        rl = CanvasPoint(self.rlx, self.rly)
+        bbox_corner1, bbox_corner2 = lu.circle_bounding_box_from_diameter(rl)
+        self.circle = self.create_oval(
+            *(*bbox_corner1, *bbox_corner2), fill="", outline="red", width=2
+        )
 
     def on_mousemove(self, event):
         if self.rectangle:

@@ -3,7 +3,6 @@ from math import cos, sin, pi, degrees
 
 from blitzcrop import (
     parser,
-    circle_bounding_box_from_diameter,
     rescaled_image_size,
     ImagePoint,
     CanvasPoint,
@@ -16,10 +15,10 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertAlmostEqual(point_expected[1], point_actual[1])
 
     def assertBoxAlmostEqual(self, box_expected, box_actual):
-        self.assertAlmostEqual(box_expected[0], box_actual[0])
-        self.assertAlmostEqual(box_expected[1], box_actual[1])
-        self.assertAlmostEqual(box_expected[2], box_actual[2])
-        self.assertAlmostEqual(box_expected[3], box_actual[3])
+        self.assertAlmostEqual(box_expected[0], box_actual[0][0])
+        self.assertAlmostEqual(box_expected[1], box_actual[0][1])
+        self.assertAlmostEqual(box_expected[2], box_actual[1][0])
+        self.assertAlmostEqual(box_expected[3], box_actual[1][1])
 
     def test_argument_parsing(self):
         args = parser.parse_args([])
@@ -53,11 +52,13 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertEqual(a, -b)
 
     def test_circle_bounding_box_from_diameter(self):
-        bbox = circle_bounding_box_from_diameter(0, 0, 0, 0)
+        bbox = CanvasPoint(0, 0).circle_bounding_box_from_diameter(CanvasPoint(0, 0))
         self.assertBoxAlmostEqual((0, 0, 0, 0), bbox)
-        bbox = circle_bounding_box_from_diameter(50, 0, 50, 100)
+        bbox = CanvasPoint(50, 0).circle_bounding_box_from_diameter(
+            CanvasPoint(50, 100)
+        )
         self.assertBoxAlmostEqual((0, 0, 100, 100), bbox)
-        bbox = circle_bounding_box_from_diameter(0, 0, 100, 0)
+        bbox = CanvasPoint(0, 0).circle_bounding_box_from_diameter(CanvasPoint(100, 0))
         self.assertBoxAlmostEqual((0, -50, 100, 50), bbox)
         phi = 0
         while phi < 2 * pi:
@@ -65,7 +66,9 @@ class TestBlitzcrop(unittest.TestCase):
             y1 = 50 * (1 + sin(phi))
             x2 = 50 * (1 + cos(phi + pi))
             y2 = 50 * (1 + sin(phi + pi))
-            bbox = circle_bounding_box_from_diameter(x1, y1, x2, y2)
+            bbox = CanvasPoint(x1, y1).circle_bounding_box_from_diameter(
+                CanvasPoint(x2, y2)
+            )
             self.assertBoxAlmostEqual((0, 0, 100, 100), bbox)
             phi += 0.1 * pi
 
