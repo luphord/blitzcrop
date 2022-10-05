@@ -249,7 +249,7 @@ class CropCanvas(Canvas):
         if self.lux and self.luy and self.rlx and self.rly:
             cx = self.lux + (self.rlx - self.lux) / 2
             cy = self.luy + (self.rly - self.luy) / 2
-            r = ((cx - self.lux) ** 2 + (cy - self.luy) ** 2) ** 0.5
+            r = abs(CanvasPoint(cx, cy) - CanvasPoint(self.lux, self.luy))
             x1, y1 = CanvasPoint(event.x, event.y).project_to_circle_around(
                 CanvasPoint(cx, cy), r
             )

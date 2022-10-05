@@ -42,6 +42,11 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertEqual(a + b - b, a)
         self.assertEqual(0.5 * a * 2, a)
 
+    def test_point_abs(self):
+        self.assertAlmostEqual(1, abs(ImagePoint(1, 0)))
+        self.assertAlmostEqual(2**0.5, abs(ImagePoint(1, 1)))
+        self.assertAlmostEqual(abs(ImagePoint(-5, 7)), abs(ImagePoint(5, -7)))
+
     def test_central_inversion(self):
         a = CanvasPoint(1, 2)
         b = a.central_inversion_through(CanvasPoint(0, 0))
