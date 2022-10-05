@@ -30,11 +30,6 @@ def project_to_circle(x, y, cx, cy, r):
     return cx + alpha * (x - cx), cy + alpha * (y - cy)
 
 
-def central_inversion(x, y, cx, cy):
-    """Inversion of point (x, y) through (cx, cy), a.k.a point reflection."""
-    return 2 * cx - x, 2 * cy - y
-
-
 def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     """Compute image size to embed into canvas."""
     ar = image_width / image_height
@@ -104,6 +99,11 @@ class Point(ABC):
     def __repr__(self):
         return f"{type(self).__name__}({self.x}, {self.y})"
 
+    def __iter__(self):
+        """Implements iteration to support destructuring assignments for Points."""
+        yield self.x
+        yield self.y
+
     def assert_same_type(self, other):
         assert type(self) == type(other), (
             f"Cannot perform operation as self is of type "
@@ -126,6 +126,10 @@ class Point(ABC):
 
     def __rmul__(self, factor):
         return self * factor
+
+    def central_inversion_through(self, center):
+        """Inversion of self through center, a.k.a point reflection."""
+        return 2 * center - self
 
     @abstractmethod
     def to_image_coordinates(
@@ -244,7 +248,7 @@ class CropCanvas(Canvas):
             self.projected = self.create_oval(
                 x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill="yellow"
             )
-            x2, y2 = central_inversion(x1, y1, cx, cy)
+            x2, y2 = CanvasPoint(x1, y1).central_inversion_through(CanvasPoint(cx, cy))
             self.selected_rectangle = (
                 self.lux,
                 self.luy,
