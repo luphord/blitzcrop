@@ -247,25 +247,24 @@ class CropCanvas(Canvas):
         if self.projected:
             self.delete(self.projected)
         if self.lux and self.luy and self.rlx and self.rly:
-            cx = self.lux + (self.rlx - self.lux) / 2
-            cy = self.luy + (self.rly - self.luy) / 2
-            r = abs(CanvasPoint(cx, cy) - CanvasPoint(self.lux, self.luy))
-            x1, y1 = CanvasPoint(event.x, event.y).project_to_circle_around(
-                CanvasPoint(cx, cy), r
-            )
+            lu = CanvasPoint(self.lux, self.luy)
+            rl = CanvasPoint(self.rlx, self.rly)
+            center = lu + 0.5 * (rl - lu)
+            r = abs(center - CanvasPoint(self.lux, self.luy))
+            corner1 = CanvasPoint(event.x, event.y).project_to_circle_around(center, r)
             self.projected = self.create_oval(
-                x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill="yellow"
+                corner1.x - 5,
+                corner1.y - 5,
+                corner1.x + 5,
+                corner1.y + 5,
+                fill="yellow",
             )
-            x2, y2 = CanvasPoint(x1, y1).central_inversion_through(CanvasPoint(cx, cy))
+            corner2 = corner1.central_inversion_through(center)
             self.selected_rectangle = (
-                self.lux,
-                self.luy,
-                x1,
-                y1,
-                self.rlx,
-                self.rly,
-                x2,
-                y2,
+                *lu,
+                *corner1,
+                *rl,
+                *corner2,
             )
             self.rectangle = self.create_polygon(
                 *self.selected_rectangle,
