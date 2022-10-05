@@ -44,6 +44,11 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertEqual(a + b - b, a)
         self.assertEqual(0.5 * a * 2, a)
 
+    def test_central_inversion(self):
+        a = CanvasPoint(1, 2)
+        b = a.central_inversion_through(CanvasPoint(0, 0))
+        self.assertEqual(a, -b)
+
     def test_circle_bounding_box_from_diameter(self):
         bbox = circle_bounding_box_from_diameter(0, 0, 0, 0)
         self.assertBoxAlmostEqual((0, 0, 0, 0), bbox)

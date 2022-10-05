@@ -127,6 +127,9 @@ class Point(ABC):
     def __rmul__(self, factor):
         return self * factor
 
+    def __neg__(self):
+        return -1 * self
+
     def central_inversion_through(self, center):
         """Inversion of self through center, a.k.a point reflection."""
         return 2 * center - self
