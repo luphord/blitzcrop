@@ -110,6 +110,10 @@ class Point(ABC):
     def __abs__(self):
         return (self.x**2 + self.y**2) ** 0.5
 
+    def middle_between(self, other):
+        """Middle point between self and other."""
+        return self + 0.5 * (other - self)
+
     def central_inversion_through(self, center):
         """Inversion of self through center, a.k.a point reflection."""
         return 2 * center - self
@@ -129,7 +133,7 @@ class Point(ABC):
 
     def circle_bounding_box_from_diameter(self, other):
         """Compute bounding box for a circle from diametric points self and other."""
-        center = self + 0.5 * (other - self)
+        center = self.middle_between(other)
         radius = abs(center - self)
         return center - type(self)(radius, radius), center + type(self)(radius, radius)
 
@@ -245,7 +249,7 @@ class CropCanvas(Canvas):
         if self.projected:
             self.delete(self.projected)
         if self.lu and self.rl:
-            center = self.lu + 0.5 * (self.rl - self.lu)
+            center = self.lu.middle_between(self.rl)
             r = abs(center - self.lu)
             corner1 = CanvasPoint(event.x, event.y).project_to_circle_around(center, r)
             self.projected = self.create_oval(
