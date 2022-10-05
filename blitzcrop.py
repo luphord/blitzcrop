@@ -169,10 +169,8 @@ class CropCanvas(Canvas):
         self.circle = None
         self.rectangle = None
         self.projected = None
-        self.lux = None
-        self.luy = None
-        self.rlx = None
-        self.rly = None
+        self.lu = None
+        self.rl = None
         self.selected_rectangle = None
         self.bind("<Button-1>", self.on_click)
         self.bind("<B1-Motion>", self.on_drag)
@@ -230,15 +228,13 @@ class CropCanvas(Canvas):
             ow, oh = tuple(abs(v) * self.image.width // iw for v in cont_rect_offsets)
             cont_rect.crop((ow, oh, cont_rect.width - ow, cont_rect.height - oh)).show()
         self._delete_circle_and_rectangle()
-        self.rlx = self.rly = None
-        self.lux, self.luy = event.x, event.y
+        self.rl = None
+        self.lu = CanvasPoint(event.x, event.y)
 
     def on_drag(self, event):
         self._delete_circle_and_rectangle()
-        self.rlx, self.rly = event.x, event.y
-        lu = CanvasPoint(self.lux, self.luy)
-        rl = CanvasPoint(self.rlx, self.rly)
-        bbox_corner1, bbox_corner2 = lu.circle_bounding_box_from_diameter(rl)
+        self.rl = CanvasPoint(event.x, event.y)
+        bbox_corner1, bbox_corner2 = self.lu.circle_bounding_box_from_diameter(self.rl)
         self.circle = self.create_oval(
             *(*bbox_corner1, *bbox_corner2), fill="", outline="red", width=2
         )
@@ -248,11 +244,9 @@ class CropCanvas(Canvas):
             self.delete(self.rectangle)
         if self.projected:
             self.delete(self.projected)
-        if self.lux and self.luy and self.rlx and self.rly:
-            lu = CanvasPoint(self.lux, self.luy)
-            rl = CanvasPoint(self.rlx, self.rly)
-            center = lu + 0.5 * (rl - lu)
-            r = abs(center - CanvasPoint(self.lux, self.luy))
+        if self.lu and self.rl:
+            center = self.lu + 0.5 * (self.rl - self.lu)
+            r = abs(center - self.lu)
             corner1 = CanvasPoint(event.x, event.y).project_to_circle_around(center, r)
             self.projected = self.create_oval(
                 corner1.x - 5,
@@ -263,9 +257,9 @@ class CropCanvas(Canvas):
             )
             corner2 = corner1.central_inversion_through(center)
             self.selected_rectangle = (
-                *lu,
+                *self.lu,
                 *corner1,
-                *rl,
+                *self.rl,
                 *corner2,
             )
             self.rectangle = self.create_polygon(
