@@ -69,24 +69,15 @@ def containing_rectangle_offsets(
     return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
 
 
-def canvas_coordinates_to_image(
-    x, y, canvas_width, canvas_height, image_width, image_height
-):
-    """Transform canvas coordinates to image coordinates."""
-    iw, ih = rescaled_image_size(canvas_width, canvas_height, image_width, image_height)
-    ix, iy = (canvas_width - iw) // 2, (canvas_height - ih) // 2
-    return (x - ix) / iw * image_width, (y - iy) / ih * image_height
-
-
 def canvas_rectangle_to_image(
     x1, y1, x2, y2, canvas_width, canvas_height, image_width, image_height
 ):
     """Transform rectangle in canvas coordinates to rectangle in image coordinates."""
-    xi1, yi1 = canvas_coordinates_to_image(
-        x1, y1, canvas_width, canvas_height, image_width, image_height
+    xi1, yi1 = CanvasPoint(x1, y1).to_image_coordinates(
+        canvas_width, canvas_height, image_width, image_height
     )
-    xi2, yi2 = canvas_coordinates_to_image(
-        x2, y2, canvas_width, canvas_height, image_width, image_height
+    xi2, yi2 = CanvasPoint(x2, y2).to_image_coordinates(
+        canvas_width, canvas_height, image_width, image_height
     )
     return xi1, yi1, xi2, yi2
 
