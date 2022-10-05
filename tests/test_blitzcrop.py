@@ -6,7 +6,6 @@ from blitzcrop import (
     circle_bounding_box_from_diameter,
     project_to_circle,
     rescaled_image_size,
-    rotation_angle,
     ImagePoint,
     CanvasPoint,
 )
@@ -111,13 +110,15 @@ class TestBlitzcrop(unittest.TestCase):
         self.assertPointAlmostEqual((300, 150), s)
 
     def test_rotation_angle(self):
-        angle = rotation_angle(100, 100, 200, 100)
+        angle = CanvasPoint(0, 0).rotation_angle(CanvasPoint(1, 0))
         self.assertAlmostEqual(0, angle)
-        angle = degrees(rotation_angle(100, 100, 200, 200))
+        angle = CanvasPoint(100, 100).rotation_angle(CanvasPoint(200, 100))
+        self.assertAlmostEqual(0, angle)
+        angle = degrees(CanvasPoint(100, 100).rotation_angle(CanvasPoint(200, 200)))
         self.assertAlmostEqual(-45, angle)
-        angle = degrees(rotation_angle(100, 100, 200, 0))
+        angle = degrees(CanvasPoint(100, 100).rotation_angle(CanvasPoint(200, 0)))
         self.assertAlmostEqual(45, angle)
-        angle = degrees(rotation_angle(100, 100, 100, 200))
+        angle = degrees(CanvasPoint(100, 100).rotation_angle(CanvasPoint(100, 200)))
         self.assertAlmostEqual(-90, angle)
-        angle = degrees(rotation_angle(100, 100, 100, 0))
+        angle = degrees(CanvasPoint(100, 100).rotation_angle(CanvasPoint(100, 0)))
         self.assertAlmostEqual(90, angle)

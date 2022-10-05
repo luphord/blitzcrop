@@ -42,16 +42,6 @@ def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     return int(iw), int(ih)
 
 
-def rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y):
-    """Compute rotation angle by upper left and right points of selected rectangle.
-    This is the angle *by which the selection is rotated*. To correct for it, you
-    have to rotate the image *minus* this angle."""
-    dx = upper_right_x - upper_left_x
-    dy = upper_right_y - upper_left_y
-    # minus for correcting that y increases downwards
-    return -(atan(dy / dx) if dx != 0 else copysign(0.5 * pi, dy))
-
-
 def containing_rectangle(x1, y1, x2, y2, x3, y3, x4, y4):
     """Compute smallest rectangle containing the given shape (rotated rectangle)."""
     xs = [x1, x2, x3, x4]
@@ -65,7 +55,9 @@ def containing_rectangle_offsets(
     """Compute offset between selected rectangle and containing rectangle."""
     d_upper_y = upper_right_y - upper_left_y
     d_lower_y = upper_left_y - lower_left_y
-    alpha = rotation_angle(upper_left_x, upper_left_y, upper_right_x, upper_right_y)
+    alpha = CanvasPoint(upper_left_x, upper_left_y).rotation_angle(
+        CanvasPoint(upper_right_x, upper_right_y)
+    )
     return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
 
 
@@ -124,6 +116,14 @@ class Point(ABC):
     def central_inversion_through(self, center):
         """Inversion of self through center, a.k.a point reflection."""
         return 2 * center - self
+
+    def rotation_angle(self, other):
+        """Compute rotation angle of difference vector around self w.r.t. horizontal line.
+        This is the angle *by which the vector is rotated*. To correct for it, you
+        have to rotate *minus* this angle."""
+        dx, dy = other - self
+        # minus for correcting that y increases downwards
+        return -(atan(dy / dx) if dx != 0 else copysign(0.5 * pi, dy))
 
     @abstractmethod
     def to_image_coordinates(
@@ -207,7 +207,9 @@ class CropCanvas(Canvas):
                 self.image.height,
             )
             cont_rect = self.image.crop((x1, y1, x2, y2)).rotate(
-                -degrees(rotation_angle(r[0], r[1], r[2], r[3])),
+                -degrees(
+                    CanvasPoint(r[0], r[1]).rotation_angle(CanvasPoint(r[2], r[3]))
+                ),
                 expand=True,
                 resample=Image.Resampling.BICUBIC,
             )
