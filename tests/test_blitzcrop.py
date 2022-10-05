@@ -4,7 +4,6 @@ from math import cos, sin, pi, degrees
 from blitzcrop import (
     parser,
     circle_bounding_box_from_diameter,
-    project_to_circle,
     rescaled_image_size,
     ImagePoint,
     CanvasPoint,
@@ -66,19 +65,19 @@ class TestBlitzcrop(unittest.TestCase):
             phi += 0.1 * pi
 
     def test_project_to_circle(self):
-        p = project_to_circle(50, 0, 0, 0, 100)
+        p = CanvasPoint(50, 0).project_to_circle_around(CanvasPoint(0, 0), 100)
         self.assertPointAlmostEqual((100, 0), p)
-        p = project_to_circle(200, 0, 0, 0, 100)
+        p = CanvasPoint(200, 0).project_to_circle_around(CanvasPoint(0, 0), 100)
         self.assertPointAlmostEqual((100, 0), p)
-        p = project_to_circle(0, 50, 0, 0, 100)
+        p = CanvasPoint(0, 50).project_to_circle_around(CanvasPoint(0, 0), 100)
         self.assertPointAlmostEqual((0, 100), p)
-        p = project_to_circle(0, 200, 0, 0, 100)
+        p = CanvasPoint(0, 200).project_to_circle_around(CanvasPoint(0, 0), 100)
         self.assertPointAlmostEqual((0, 100), p)
         phi = 0
         while phi < 2 * pi:
             x = 50 * (1 + cos(phi))
             y = 50 * (1 + sin(phi))
-            p = project_to_circle(x, y, 0, 0, 100)
+            p = CanvasPoint(x, y).project_to_circle_around(CanvasPoint(0, 0), 100)
             self.assertAlmostEqual(100, (p[0] ** 2 + p[1] ** 2) ** 0.5)
             phi += 0.1 * pi
 

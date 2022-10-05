@@ -24,12 +24,6 @@ def circle_bounding_box_from_diameter(x1, y1, x2, y2):
     return cx - r, cy - r, cx + r, cy + r
 
 
-def project_to_circle(x, y, cx, cy, r):
-    """Project point (x, y) onto circle of radius r around (cx, cy)."""
-    alpha = r / ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
-    return cx + alpha * (x - cx), cy + alpha * (y - cy)
-
-
 def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     """Compute image size to embed into canvas."""
     ar = image_width / image_height
@@ -87,6 +81,14 @@ class Point(ABC):
         yield self.x
         yield self.y
 
+    def __getitem__(self, index):
+        if index == 0:
+            return self.x
+        elif index == 1:
+            return self.y
+        else:
+            raise IndexError(f"Points can only be indexed by 0 or 1, got {index}")
+
     def assert_same_type(self, other):
         assert type(self) == type(other), (
             f"Cannot perform operation as self is of type "
@@ -113,9 +115,17 @@ class Point(ABC):
     def __neg__(self):
         return -1 * self
 
+    def __abs__(self):
+        return (self.x**2 + self.y**2) ** 0.5
+
     def central_inversion_through(self, center):
         """Inversion of self through center, a.k.a point reflection."""
         return 2 * center - self
+
+    def project_to_circle_around(self, center, radius):
+        """Project self onto circle of given radius around center."""
+        alpha = radius / abs(self - center)
+        return center + alpha * (self - center)
 
     def rotation_angle(self, other):
         """Compute rotation angle of difference vector around self w.r.t. horizontal line.
@@ -240,7 +250,9 @@ class CropCanvas(Canvas):
             cx = self.lux + (self.rlx - self.lux) / 2
             cy = self.luy + (self.rly - self.luy) / 2
             r = ((cx - self.lux) ** 2 + (cy - self.luy) ** 2) ** 0.5
-            x1, y1 = project_to_circle(event.x, event.y, cx, cy, r)
+            x1, y1 = CanvasPoint(event.x, event.y).project_to_circle_around(
+                CanvasPoint(cx, cy), r
+            )
             self.projected = self.create_oval(
                 x1 - 5, y1 - 5, x1 + 5, y1 + 5, fill="yellow"
             )
