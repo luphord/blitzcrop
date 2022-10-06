@@ -173,11 +173,15 @@ class Rectangle:
             PointType(min(xs), max(ys)),
         )
 
+    def rotation_angle(self):
+        """Compute rotation angle of self w.r.t. horizontal line"""
+        return self.left_upper.rotation_angle(self.right_upper)
+
     def containing_rectangle_offsets(self):
         """Compute offset between self and containing rectangle."""
         d_upper_y = self.right_upper.y - self.left_upper.y
         d_lower_y = self.left_upper.y - self.left_lower.y
-        alpha = self.left_upper.rotation_angle(self.right_upper)
+        alpha = self.rotation_angle()
         return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
 
     def to_image_rectangle(
@@ -251,7 +255,7 @@ class CropCanvas(Canvas):
                     *image_containing_rectangle.right_lower,
                 ]
             ).rotate(
-                -degrees(r.left_upper.rotation_angle(r.right_upper)),
+                -degrees(r.rotation_angle()),
                 expand=True,
                 resample=Image.Resampling.BICUBIC,
             )
