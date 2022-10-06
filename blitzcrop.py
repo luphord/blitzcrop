@@ -28,13 +28,6 @@ def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     return int(iw), int(ih)
 
 
-def containing_rectangle(x1, y1, x2, y2, x3, y3, x4, y4):
-    """Compute smallest rectangle containing the given shape (rotated rectangle)."""
-    xs = [x1, x2, x3, x4]
-    ys = [y1, y2, y3, y4]
-    return min(xs), min(ys), max(xs), max(ys)
-
-
 def containing_rectangle_offsets(
     upper_left_x, upper_left_y, upper_right_x, upper_right_y, lower_left_y
 ):
@@ -189,6 +182,13 @@ class Rectangle:
             for coordinate in point:
                 yield coordinate
 
+    def containing_rectangle(self):
+        """Compute smallest rectangle (with sides parallel to the axes)
+        containing self (a possibly rotated rectangle)."""
+        xs = [point.x for point in self]
+        ys = [point.y for point in self]
+        return min(xs), min(ys), max(xs), max(ys)
+
 
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
@@ -236,7 +236,7 @@ class CropCanvas(Canvas):
             r = self.selected_rectangle
             canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
             x1, y1, x2, y2 = canvas_rectangle_to_image(
-                *containing_rectangle(*r.flatten()),
+                *r.containing_rectangle(),
                 canvas_width,
                 canvas_height,
                 self.image.width,
