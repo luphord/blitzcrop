@@ -239,17 +239,18 @@ class CropCanvas(Canvas):
         if self.selected_rectangle:
             r = self.selected_rectangle
             canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
-            x1, y1, _, _, x2, y2, _, _ = (
-                r.containing_rectangle()
-                .to_image_rectangle(
-                    canvas_width,
-                    canvas_height,
-                    self.image.width,
-                    self.image.height,
-                )
-                .flatten()
+            image_containing_rectangle = r.containing_rectangle().to_image_rectangle(
+                canvas_width,
+                canvas_height,
+                self.image.width,
+                self.image.height,
             )
-            cont_rect = self.image.crop((x1, y1, x2, y2)).rotate(
+            cont_rect = self.image.crop(
+                [
+                    *image_containing_rectangle.left_upper,
+                    *image_containing_rectangle.right_lower,
+                ]
+            ).rotate(
                 -degrees(r.left_upper.rotation_angle(r.right_upper)),
                 expand=True,
                 resample=Image.Resampling.BICUBIC,
