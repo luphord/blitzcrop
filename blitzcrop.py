@@ -164,6 +164,32 @@ class CanvasPoint(Point):
         )
 
 
+class Rectangle:
+    def __init__(self, left_upper, right_upper, right_lower, left_lower):
+        self.left_upper = left_upper
+        self.right_upper = right_upper
+        self.right_lower = right_lower
+        self.left_lower = left_lower
+
+    def __repr__(self):
+        return (
+            f"{type(self).__name__}({self.left_upper}, {self.right_upper}, "
+            f"{self.right_lower}, {self.left_lower})"
+        )
+
+    def __iter__(self):
+        """Implements iteration to support destructuring assignments for Points."""
+        yield self.left_upper
+        yield self.right_upper
+        yield self.right_lower
+        yield self.left_lower
+
+    def flatten(self):
+        for point in self:
+            for coordinate in point:
+                yield coordinate
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
@@ -210,21 +236,19 @@ class CropCanvas(Canvas):
             r = self.selected_rectangle
             canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
             x1, y1, x2, y2 = canvas_rectangle_to_image(
-                *containing_rectangle(*self.selected_rectangle),
+                *containing_rectangle(*r.flatten()),
                 canvas_width,
                 canvas_height,
                 self.image.width,
                 self.image.height,
             )
             cont_rect = self.image.crop((x1, y1, x2, y2)).rotate(
-                -degrees(
-                    CanvasPoint(r[0], r[1]).rotation_angle(CanvasPoint(r[2], r[3]))
-                ),
+                -degrees(r.left_upper.rotation_angle(r.right_upper)),
                 expand=True,
                 resample=Image.Resampling.BICUBIC,
             )
             cont_rect_offsets = containing_rectangle_offsets(
-                r[0], r[1], r[2], r[3], r[7]
+                *r.left_upper, *r.right_upper, r.left_lower[1]
             )
             iw, _ = rescaled_image_size(
                 canvas_width, canvas_height, self.image.width, self.image.height
@@ -260,14 +284,14 @@ class CropCanvas(Canvas):
                 fill="yellow",
             )
             corner2 = corner1.central_inversion_through(center)
-            self.selected_rectangle = (
-                *self.lu,
-                *corner1,
-                *self.rl,
-                *corner2,
+            self.selected_rectangle = Rectangle(
+                self.lu,
+                corner1,
+                self.rl,
+                corner2,
             )
             self.rectangle = self.create_polygon(
-                *self.selected_rectangle,
+                *self.selected_rectangle.flatten(),
                 fill="",
                 outline="blue",
                 width=2,
