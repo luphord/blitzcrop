@@ -28,19 +28,6 @@ def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     return int(iw), int(ih)
 
 
-def canvas_rectangle_to_image(
-    x1, y1, x2, y2, canvas_width, canvas_height, image_width, image_height
-):
-    """Transform rectangle in canvas coordinates to rectangle in image coordinates."""
-    xi1, yi1 = CanvasPoint(x1, y1).to_image_coordinates(
-        canvas_width, canvas_height, image_width, image_height
-    )
-    xi2, yi2 = CanvasPoint(x2, y2).to_image_coordinates(
-        canvas_width, canvas_height, image_width, image_height
-    )
-    return xi1, yi1, xi2, yi2
-
-
 class Point(ABC):
     def __init__(self, x, y):
         self.x = x
@@ -175,7 +162,13 @@ class Rectangle:
         containing self (a possibly rotated rectangle)."""
         xs = [point.x for point in self]
         ys = [point.y for point in self]
-        return min(xs), min(ys), max(xs), max(ys)
+        PointType = type(self.left_upper)
+        return Rectangle(
+            PointType(min(xs), min(ys)),
+            PointType(max(xs), min(ys)),
+            PointType(max(xs), max(ys)),
+            PointType(min(xs), max(ys)),
+        )
 
     def containing_rectangle_offsets(self):
         """Compute offset between self and containing rectangle."""
@@ -183,6 +176,19 @@ class Rectangle:
         d_lower_y = self.left_upper.y - self.left_lower.y
         alpha = self.left_upper.rotation_angle(self.right_upper)
         return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
+
+    def to_image_rectangle(
+        self, canvas_width, canvas_height, image_width, image_height
+    ):
+        """Transform self in canvas coordinates to rectangle in image coordinates."""
+        return Rectangle(
+            *[
+                point.to_image_coordinates(
+                    canvas_width, canvas_height, image_width, image_height
+                )
+                for point in self
+            ]
+        )
 
 
 class CropCanvas(Canvas):
@@ -230,12 +236,15 @@ class CropCanvas(Canvas):
         if self.selected_rectangle:
             r = self.selected_rectangle
             canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
-            x1, y1, x2, y2 = canvas_rectangle_to_image(
-                *r.containing_rectangle(),
-                canvas_width,
-                canvas_height,
-                self.image.width,
-                self.image.height,
+            x1, y1, _, _, x2, y2, _, _ = (
+                r.containing_rectangle()
+                .to_image_rectangle(
+                    canvas_width,
+                    canvas_height,
+                    self.image.width,
+                    self.image.height,
+                )
+                .flatten()
             )
             cont_rect = self.image.crop((x1, y1, x2, y2)).rotate(
                 -degrees(r.left_upper.rotation_angle(r.right_upper)),
