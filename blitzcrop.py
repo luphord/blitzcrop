@@ -134,6 +134,9 @@ class CanvasPoint(Point):
 
 class Rectangle:
     def __init__(self, left_upper, right_upper, right_lower, left_lower):
+        left_upper.assert_same_type(right_upper)
+        left_upper.assert_same_type(right_lower)
+        left_upper.assert_same_type(left_lower)
         self.left_upper = left_upper
         self.right_upper = right_upper
         self.right_lower = right_lower
