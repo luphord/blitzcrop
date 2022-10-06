@@ -28,18 +28,6 @@ def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):
     return int(iw), int(ih)
 
 
-def containing_rectangle_offsets(
-    upper_left_x, upper_left_y, upper_right_x, upper_right_y, lower_left_y
-):
-    """Compute offset between selected rectangle and containing rectangle."""
-    d_upper_y = upper_right_y - upper_left_y
-    d_lower_y = upper_left_y - lower_left_y
-    alpha = CanvasPoint(upper_left_x, upper_left_y).rotation_angle(
-        CanvasPoint(upper_right_x, upper_right_y)
-    )
-    return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
-
-
 def canvas_rectangle_to_image(
     x1, y1, x2, y2, canvas_width, canvas_height, image_width, image_height
 ):
@@ -189,6 +177,13 @@ class Rectangle:
         ys = [point.y for point in self]
         return min(xs), min(ys), max(xs), max(ys)
 
+    def containing_rectangle_offsets(self):
+        """Compute offset between self and containing rectangle."""
+        d_upper_y = self.right_upper.y - self.left_upper.y
+        d_lower_y = self.left_upper.y - self.left_lower.y
+        alpha = self.left_upper.rotation_angle(self.right_upper)
+        return (d_lower_y * sin(alpha), d_upper_y * cos(alpha))
+
 
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
@@ -247,9 +242,7 @@ class CropCanvas(Canvas):
                 expand=True,
                 resample=Image.Resampling.BICUBIC,
             )
-            cont_rect_offsets = containing_rectangle_offsets(
-                *r.left_upper, *r.right_upper, r.left_lower[1]
-            )
+            cont_rect_offsets = r.containing_rectangle_offsets()
             iw, _ = rescaled_image_size(
                 canvas_width, canvas_height, self.image.width, self.image.height
             )
