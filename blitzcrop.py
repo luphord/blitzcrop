@@ -11,6 +11,7 @@ __version__ = """0.1.0"""
 
 from argparse import ArgumentParser
 from math import atan, sin, cos, degrees, pi, copysign
+from datetime import datetime
 from abc import ABC, abstractmethod
 from tkinter import Tk, Canvas
 from tkinter.simpledialog import Dialog
@@ -343,6 +344,12 @@ class AcceptCroppedImageDialog(Dialog):
             (w - iw) // 2 + 5, (h - ih) // 2 + 5, image=self._photo_image, anchor="nw"
         )
         return frame
+
+    def apply(self):
+        """Called when dialog is accepted ("OK" is clicked or Enter is pressed).
+        Saves the image
+        """
+        self.image.save(f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg")
 
 
 parser = ArgumentParser(description=__doc__)
