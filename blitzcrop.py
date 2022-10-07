@@ -225,6 +225,8 @@ def crop_rectangle(rectangle, image, canvas_width, canvas_height):
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
+    IMAGE_CROPPED_EVENT = "<<image_cropped>>"
+
     def __init__(self, image, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.image = image
@@ -265,11 +267,7 @@ class CropCanvas(Canvas):
 
     def on_click(self, event):
         if self.selected_rectangle:
-            canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
-            cropped_image = crop_rectangle(
-                self.selected_rectangle, self.image, canvas_width, canvas_height
-            )
-            cropped_image.show()
+            self.event_generate(self.IMAGE_CROPPED_EVENT, when="now")
         self._delete_circle_and_rectangle()
         self.rl = None
         self.lu = CanvasPoint(event.x, event.y)
@@ -312,6 +310,18 @@ class CropCanvas(Canvas):
                 width=2,
             )
 
+    def crop_selected_rectangle(self):
+        assert self.selected_rectangle, "No rectangle has been selected"
+        canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
+        return crop_rectangle(
+            self.selected_rectangle, self.image, canvas_width, canvas_height
+        )
+
+
+def on_image_cropped(event):
+    print(f"Cropped rectangle {event.widget.selected_rectangle}")
+    event.widget.crop_selected_rectangle().show()
+
 
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
@@ -331,6 +341,7 @@ def main() -> None:
     canvas = CropCanvas(image, app, bg="black")
     canvas.pack(anchor="nw", fill="both", expand=1)
     canvas.redraw_image()
+    canvas.bind(canvas.IMAGE_CROPPED_EVENT, on_image_cropped)
     app.mainloop()
 
 
