@@ -198,6 +198,30 @@ class Rectangle:
         )
 
 
+def crop_rectangle(rectangle, image, canvas_width, canvas_height):
+    """Crop (possibly rotated) rectangle from image."""
+    image_containing_rectangle = rectangle.containing_rectangle().to_image_rectangle(
+        canvas_width,
+        canvas_height,
+        image.width,
+        image.height,
+    )
+    cont_rect = image.crop(
+        [
+            *image_containing_rectangle.left_upper,
+            *image_containing_rectangle.right_lower,
+        ]
+    ).rotate(
+        -degrees(rectangle.rotation_angle()),
+        expand=True,
+        resample=Image.Resampling.BICUBIC,
+    )
+    cont_rect_offsets = rectangle.containing_rectangle_offsets()
+    iw, _ = rescaled_image_size(canvas_width, canvas_height, image.width, image.height)
+    ow, oh = tuple(abs(v) * image.width // iw for v in cont_rect_offsets)
+    return cont_rect.crop((ow, oh, cont_rect.width - ow, cont_rect.height - oh))
+
+
 class CropCanvas(Canvas):
     """Canvas supporting image crop by mouse drag + click."""
 
@@ -241,30 +265,11 @@ class CropCanvas(Canvas):
 
     def on_click(self, event):
         if self.selected_rectangle:
-            r = self.selected_rectangle
             canvas_width, canvas_height = self.winfo_width(), self.winfo_height()
-            image_containing_rectangle = r.containing_rectangle().to_image_rectangle(
-                canvas_width,
-                canvas_height,
-                self.image.width,
-                self.image.height,
+            cropped_image = crop_rectangle(
+                self.selected_rectangle, self.image, canvas_width, canvas_height
             )
-            cont_rect = self.image.crop(
-                [
-                    *image_containing_rectangle.left_upper,
-                    *image_containing_rectangle.right_lower,
-                ]
-            ).rotate(
-                -degrees(r.rotation_angle()),
-                expand=True,
-                resample=Image.Resampling.BICUBIC,
-            )
-            cont_rect_offsets = r.containing_rectangle_offsets()
-            iw, _ = rescaled_image_size(
-                canvas_width, canvas_height, self.image.width, self.image.height
-            )
-            ow, oh = tuple(abs(v) * self.image.width // iw for v in cont_rect_offsets)
-            cont_rect.crop((ow, oh, cont_rect.width - ow, cont_rect.height - oh)).show()
+            cropped_image.show()
         self._delete_circle_and_rectangle()
         self.rl = None
         self.lu = CanvasPoint(event.x, event.y)
