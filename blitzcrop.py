@@ -345,6 +345,10 @@ class AcceptCroppedImageDialog(Dialog):
         )
         return frame
 
+    def buttonbox(self):
+        super().buttonbox()
+        self.bind("<space>", self.ok)
+
     def apply(self):
         """Called when dialog is accepted ("OK" is clicked or Enter is pressed).
         Saves the image
