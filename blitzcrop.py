@@ -13,6 +13,7 @@ from argparse import ArgumentParser
 from math import atan, sin, cos, degrees, pi, copysign
 from abc import ABC, abstractmethod
 from tkinter import Tk, Canvas
+from tkinter.simpledialog import Dialog
 from PIL import Image, ImageTk
 
 
@@ -320,7 +321,28 @@ class CropCanvas(Canvas):
 
 def on_image_cropped(event):
     print(f"Cropped rectangle {event.widget.selected_rectangle}")
-    event.widget.crop_selected_rectangle().show()
+    AcceptCroppedImageDialog(event.widget.crop_selected_rectangle(), event.widget)
+
+
+class AcceptCroppedImageDialog(Dialog):
+    def __init__(self, image, *args, **kwargs):
+        self.image = image
+        if "title" not in kwargs:
+            kwargs["title"] = "Accept cropped image?"
+        super().__init__(*args, **kwargs)
+
+    def body(self, frame):
+        w, h = 378 - 10, 265 - 10  # measured max size minus desired margin
+        iw, ih = rescaled_image_size(w, h, self.image.width, self.image.height)
+        image_resized = self.image.resize((iw, ih), Image.Resampling.NEAREST)
+        # member variable is required for photo image to prevent garbage collection
+        self._photo_image = ImageTk.PhotoImage(image_resized)
+        canvas = Canvas(frame, bg="black")
+        canvas.pack(anchor="s", fill="both", expand=1)
+        canvas.create_image(
+            (w - iw) // 2 + 5, (h - ih) // 2 + 5, image=self._photo_image, anchor="nw"
+        )
+        return frame
 
 
 parser = ArgumentParser(description=__doc__)
