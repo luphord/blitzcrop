@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 from math import atan, sin, cos, degrees, pi, copysign
 from datetime import datetime
 from abc import ABC, abstractmethod
-from tkinter import Tk, Canvas, Frame
+from tkinter import Tk, Canvas, Frame, messagebox
 from tkinter.simpledialog import Dialog
 from PIL import Image, ImageTk
 
@@ -354,18 +354,50 @@ class AcceptCroppedImageDialog(Dialog):
 class CropGalleryFrame(Frame):
     def __init__(self, filenames, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filenames = filenames
-        self._setup_crop_canvas(0)
+        self.filenames = list(filenames)
+        assert self.filenames, "At least one image is required"
+        self.index = 0
+        self.canvas = None
+        self._setup_crop_canvas()
 
-    def _setup_crop_canvas(self, index):
-        image = Image.open(self.filenames[index])
+    def _setup_crop_canvas(self):
+        image = Image.open(self.filenames[self.index])
+        if self.canvas:
+            self.canvas.destroy()
         self.canvas = CropCanvas(image, self, bg="black")
         self.canvas.pack(anchor="nw", fill="both", expand=1)
         self.canvas.bind(CropCanvas.IMAGE_CROPPED_EVENT, self.on_image_cropped)
+        self.canvas.bind("<Left>", self.on_previous_image)
+        self.canvas.bind("a", self.on_previous_image)
+        self.canvas.bind("<Right>", self.on_next_image)
+        self.canvas.bind("d", self.on_next_image)
+        self.canvas.focus_set()
 
     def on_image_cropped(self, event):
         print(f"Cropped rectangle {event.widget.selected_rectangle}")
         AcceptCroppedImageDialog(event.widget.crop_selected_rectangle(), event.widget)
+
+    def on_previous_image(self, event):
+        if self.index <= 0:
+            messagebox.showerror(
+                title="First image",
+                message="There are no images before the current one!",
+            )
+        else:
+            self.index -= 1
+            self._setup_crop_canvas()
+            self.canvas.redraw_image()
+
+    def on_next_image(self, event):
+        if self.index + 1 >= len(self.filenames):
+            messagebox.showerror(
+                title="Last image",
+                message="There are no more images after the current one!",
+            )
+        else:
+            self.index += 1
+            self._setup_crop_canvas()
+            self.canvas.redraw_image()
 
     def pack(self, *args, **kwargs):
         super().pack(*args, **kwargs)
@@ -385,7 +417,9 @@ def main() -> None:
         return
     app = Tk()
     app.geometry("400x600")
-    CropGalleryFrame(["img/test1.jpg"], app).pack(anchor="nw", fill="both", expand=1)
+    CropGalleryFrame(["img/test1.jpg", "img/test2.jpg"], app).pack(
+        anchor="nw", fill="both", expand=1
+    )
 
     app.mainloop()
 
