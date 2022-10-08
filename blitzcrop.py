@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 from math import atan, sin, cos, degrees, pi, copysign
 from datetime import datetime
 from abc import ABC, abstractmethod
-from tkinter import Tk, Canvas
+from tkinter import Tk, Canvas, Frame
 from tkinter.simpledialog import Dialog
 from PIL import Image, ImageTk
 
@@ -320,11 +320,6 @@ class CropCanvas(Canvas):
         )
 
 
-def on_image_cropped(event):
-    print(f"Cropped rectangle {event.widget.selected_rectangle}")
-    AcceptCroppedImageDialog(event.widget.crop_selected_rectangle(), event.widget)
-
-
 class AcceptCroppedImageDialog(Dialog):
     def __init__(self, image, *args, **kwargs):
         self.image = image
@@ -356,6 +351,27 @@ class AcceptCroppedImageDialog(Dialog):
         self.image.save(f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg")
 
 
+class CropGalleryFrame(Frame):
+    def __init__(self, filenames, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filenames = filenames
+        self._setup_crop_canvas(0)
+
+    def _setup_crop_canvas(self, index):
+        image = Image.open(self.filenames[index])
+        self.canvas = CropCanvas(image, self, bg="black")
+        self.canvas.pack(anchor="nw", fill="both", expand=1)
+        self.canvas.bind(CropCanvas.IMAGE_CROPPED_EVENT, self.on_image_cropped)
+
+    def on_image_cropped(self, event):
+        print(f"Cropped rectangle {event.widget.selected_rectangle}")
+        AcceptCroppedImageDialog(event.widget.crop_selected_rectangle(), event.widget)
+
+    def pack(self, *args, **kwargs):
+        super().pack(*args, **kwargs)
+        self.canvas.redraw_image()
+
+
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"
@@ -369,12 +385,8 @@ def main() -> None:
         return
     app = Tk()
     app.geometry("400x600")
+    CropGalleryFrame(["img/test1.jpg"], app).pack(anchor="nw", fill="both", expand=1)
 
-    image = Image.open("img/test1.jpg")
-    canvas = CropCanvas(image, app, bg="black")
-    canvas.pack(anchor="nw", fill="both", expand=1)
-    canvas.redraw_image()
-    canvas.bind(canvas.IMAGE_CROPPED_EVENT, on_image_cropped)
     app.mainloop()
 
 
