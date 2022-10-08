@@ -10,7 +10,7 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser
-from math import atan, sin, cos, degrees, pi, copysign
+from math import atan, ceil, sin, cos, degrees, pi, copysign
 from datetime import datetime
 from abc import ABC, abstractmethod
 from tkinter import Tk, Canvas, Frame, messagebox
@@ -220,7 +220,7 @@ def crop_rectangle(rectangle, image, canvas_width, canvas_height):
     )
     cont_rect_offsets = rectangle.containing_rectangle_offsets()
     iw, _ = rescaled_image_size(canvas_width, canvas_height, image.width, image.height)
-    ow, oh = tuple(abs(v) * image.width // iw for v in cont_rect_offsets)
+    ow, oh = tuple(ceil(abs(v) * image.width / iw) for v in cont_rect_offsets)
     return cont_rect.crop((ow, oh, cont_rect.width - ow, cont_rect.height - oh))
 
 
