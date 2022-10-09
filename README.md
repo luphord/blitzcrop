@@ -37,6 +37,11 @@ In this case, you need to ensure that [Pillow](https://pillow.readthedocs.io) is
 
 ## History
 
+### 0.2.0 (2022-10-09)
+* Implement core cropping interaction with drag + click
+* Support multiple images via command line arguments
+* Support basic keybindings for image navigation and crop accept / reject
+
 ### 0.1.0 (2022-04-03)
 * Created using [cookiecutter-pyscript](https://github.com/luphord/cookiecutter-pyscript)
 
