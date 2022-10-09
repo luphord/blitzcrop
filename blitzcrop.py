@@ -408,6 +408,7 @@ parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"
 )
+parser.add_argument("image", nargs="*", help="Image to load for cropping")
 
 
 def main() -> None:
@@ -417,9 +418,7 @@ def main() -> None:
         return
     app = Tk()
     app.geometry("400x600")
-    CropGalleryFrame(["img/test1.jpg", "img/test2.jpg"], app).pack(
-        anchor="nw", fill="both", expand=1
-    )
+    CropGalleryFrame(args.image, app).pack(anchor="nw", fill="both", expand=1)
 
     app.mainloop()
 
