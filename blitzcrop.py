@@ -433,6 +433,7 @@ def main() -> None:
         print("""blitzcrop """ + __version__)
         return
     app = Tk()
+    app.title("blitzcrop")
     app.geometry("400x600")
     CropGalleryFrame(args.image, args.output_directory, app).pack(
         anchor="nw", fill="both", expand=1
