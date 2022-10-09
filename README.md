@@ -33,7 +33,11 @@ Alternatively, you can download `blitzcrop.py` and then run it using `python3` w
 python3 blitzcrop.py
 ```
 
-In this case, you need to ensure that [Pillow](https://pillow.readthedocs.io) is installed in your system and available to `python3`.
+In this case, you need to ensure that [Pillow](https://pillow.readthedocs.io) and `tkinter` (including `ImageTk`) is installed on your system and available to `python3`. If you work on an Ubuntu-based Linux distribution, you may achieve that by means of
+
+```bash
+sudo apt install python3-tk python3-pil python3-pil.imagetk
+```
 
 ## History
 
