@@ -10,6 +10,7 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser
+from pathlib import Path
 from math import atan, ceil, sin, cos, degrees, pi, copysign
 from datetime import datetime
 from abc import ABC, abstractmethod
@@ -321,8 +322,9 @@ class CropCanvas(Canvas):
 
 
 class AcceptCroppedImageDialog(Dialog):
-    def __init__(self, image, *args, **kwargs):
+    def __init__(self, image, output_directory, *args, **kwargs):
         self.image = image
+        self.output_directory = output_directory
         if "title" not in kwargs:
             kwargs["title"] = "Accept cropped image?"
         super().__init__(*args, **kwargs)
@@ -348,13 +350,18 @@ class AcceptCroppedImageDialog(Dialog):
         """Called when dialog is accepted ("OK" is clicked or Enter is pressed).
         Saves the image
         """
-        self.image.save(f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg")
+        self.output_directory.mkdir(parents=True, exist_ok=True)
+        self.image.save(
+            self.output_directory
+            / f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg"
+        )
 
 
 class CropGalleryFrame(Frame):
-    def __init__(self, filenames, *args, **kwargs):
+    def __init__(self, filenames, output_directory, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filenames = list(filenames)
+        self.output_directory = output_directory
         assert self.filenames, "At least one image is required"
         self.index = 0
         self.canvas = None
@@ -375,7 +382,9 @@ class CropGalleryFrame(Frame):
 
     def on_image_cropped(self, event):
         print(f"Cropped rectangle {event.widget.selected_rectangle}")
-        AcceptCroppedImageDialog(event.widget.crop_selected_rectangle(), event.widget)
+        AcceptCroppedImageDialog(
+            event.widget.crop_selected_rectangle(), self.output_directory, event.widget
+        )
 
     def on_previous_image(self, event):
         if self.index <= 0:
@@ -409,6 +418,13 @@ parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"
 )
 parser.add_argument("image", nargs="*", help="Image to load for cropping")
+parser.add_argument(
+    "-o",
+    "--output-directory",
+    help="Output directory for cropped images",
+    type=Path,
+    default=Path("."),
+)
 
 
 def main() -> None:
@@ -418,7 +434,9 @@ def main() -> None:
         return
     app = Tk()
     app.geometry("400x600")
-    CropGalleryFrame(args.image, app).pack(anchor="nw", fill="both", expand=1)
+    CropGalleryFrame(args.image, args.output_directory, app).pack(
+        anchor="nw", fill="both", expand=1
+    )
 
     app.mainloop()
 
