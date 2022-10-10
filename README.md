@@ -9,7 +9,7 @@ GUI for interactive **batch image cropping**:
 2. Move the mouse to the upper right corner and click.
 3. Accept or reject the cropped image in the dialog popping up.
 
-![Demo of blitzcrop interaction](img/demo.gif)
+![Demo of blitzcrop interaction](https://github.com/luphord/blitzcrop/raw/main/img/demo.gif)
 
 ## Features
 * Batch crop large amounts of images in a short amount of time
