@@ -14,9 +14,16 @@ from pathlib import Path
 from math import atan, ceil, sin, cos, degrees, pi, copysign
 from datetime import datetime
 from abc import ABC, abstractmethod
+from types import SimpleNamespace
 from tkinter import Tk, Canvas, Frame, messagebox
 from tkinter.simpledialog import Dialog
 from PIL import Image, ImageTk
+
+# monkey-patch for compatibility with Pillow < 9.10
+if not hasattr(Image, "Resampling"):
+    Image.Resampling = SimpleNamespace()
+    Image.Resampling.BICUBIC = Image.BICUBIC
+    Image.Resampling.NEAREST = Image.NEAREST
 
 
 def rescaled_image_size(canvas_width, canvas_height, image_width, image_height):

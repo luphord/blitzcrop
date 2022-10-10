@@ -41,6 +41,9 @@ sudo apt install python3-tk python3-pil python3-pil.imagetk
 
 ## History
 
+### 0.2.1 (2022-10-10)
+* Support Pillow < 9.10 by monkey-patching `Image.Resampling`
+
 ### 0.2.0 (2022-10-09)
 * Implement core cropping interaction with drag + click
 * Support multiple images via command line arguments
