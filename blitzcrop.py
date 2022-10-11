@@ -388,7 +388,6 @@ class CropGalleryFrame(Frame):
         self.canvas.focus_set()
 
     def on_image_cropped(self, event):
-        print(f"Cropped rectangle {event.widget.selected_rectangle}")
         AcceptCroppedImageDialog(
             event.widget.crop_selected_rectangle(), self.settings, event.widget
         )
