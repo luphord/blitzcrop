@@ -15,6 +15,7 @@ from math import atan, ceil, sin, cos, degrees, pi, copysign
 from datetime import datetime
 from abc import ABC, abstractmethod
 from types import SimpleNamespace
+import logging
 from tkinter import Tk, Canvas, Frame, messagebox
 from tkinter.simpledialog import Dialog
 from PIL import Image, ImageTk
@@ -358,10 +359,12 @@ class AcceptCroppedImageDialog(Dialog):
         Saves the image
         """
         self.settings.output_directory.mkdir(parents=True, exist_ok=True)
-        self.image.save(
+        save_path = (
             self.settings.output_directory
             / f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg"
         )
+        self.image.save(save_path)
+        logging.info(f"Saved {save_path}")
 
 
 class CropGalleryFrame(Frame):
@@ -434,6 +437,7 @@ parser.add_argument(
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
     args = parser.parse_args()
     if args.version:
         print("""blitzcrop """ + __version__)
