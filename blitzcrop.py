@@ -329,9 +329,9 @@ class CropCanvas(Canvas):
 
 
 class AcceptCroppedImageDialog(Dialog):
-    def __init__(self, image, output_directory, *args, **kwargs):
+    def __init__(self, image, settings, *args, **kwargs):
         self.image = image
-        self.output_directory = output_directory
+        self.settings = settings
         if "title" not in kwargs:
             kwargs["title"] = "Accept cropped image?"
         super().__init__(*args, **kwargs)
@@ -357,18 +357,18 @@ class AcceptCroppedImageDialog(Dialog):
         """Called when dialog is accepted ("OK" is clicked or Enter is pressed).
         Saves the image
         """
-        self.output_directory.mkdir(parents=True, exist_ok=True)
+        self.settings.output_directory.mkdir(parents=True, exist_ok=True)
         self.image.save(
-            self.output_directory
+            self.settings.output_directory
             / f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg"
         )
 
 
 class CropGalleryFrame(Frame):
-    def __init__(self, filenames, output_directory, *args, **kwargs):
+    def __init__(self, filenames, settings, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filenames = list(filenames)
-        self.output_directory = output_directory
+        self.settings = settings
         assert self.filenames, "At least one image is required"
         self.index = 0
         self.canvas = None
@@ -390,7 +390,7 @@ class CropGalleryFrame(Frame):
     def on_image_cropped(self, event):
         print(f"Cropped rectangle {event.widget.selected_rectangle}")
         AcceptCroppedImageDialog(
-            event.widget.crop_selected_rectangle(), self.output_directory, event.widget
+            event.widget.crop_selected_rectangle(), self.settings, event.widget
         )
 
     def on_previous_image(self, event):
@@ -442,9 +442,7 @@ def main() -> None:
     app = Tk()
     app.title("blitzcrop")
     app.geometry("400x600")
-    CropGalleryFrame(args.image, args.output_directory, app).pack(
-        anchor="nw", fill="both", expand=1
-    )
+    CropGalleryFrame(args.image, args, app).pack(anchor="nw", fill="both", expand=1)
 
     app.mainloop()
 
