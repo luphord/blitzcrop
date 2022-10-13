@@ -434,7 +434,7 @@ parser.add_argument(
     "--output-directory",
     help="Output directory for cropped images",
     type=Path,
-    default=Path("."),
+    default=Path(".") / "cropped",
 )
 parser.add_argument(
     "-q",
