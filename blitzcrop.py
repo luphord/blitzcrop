@@ -9,7 +9,7 @@ __email__ = """luphord@protonmail.com"""
 __version__ = """0.2.1"""
 
 
-from argparse import ArgumentParser
+import argparse
 from pathlib import Path
 from math import atan, ceil, sin, cos, degrees, pi, copysign
 from datetime import datetime
@@ -422,7 +422,9 @@ class CropGalleryFrame(Frame):
         self.canvas.redraw_image()
 
 
-parser = ArgumentParser(description=__doc__)
+parser = argparse.ArgumentParser(
+    description=__doc__, formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"
 )
