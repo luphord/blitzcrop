@@ -363,7 +363,7 @@ class AcceptCroppedImageDialog(Dialog):
             self.settings.output_directory
             / f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg"
         )
-        self.image.save(save_path)
+        self.image.save(save_path, quality=self.settings.quality)
         logging.info(f"Saved {save_path}")
 
 
@@ -433,6 +433,13 @@ parser.add_argument(
     help="Output directory for cropped images",
     type=Path,
     default=Path("."),
+)
+parser.add_argument(
+    "-q",
+    "--quality",
+    help="JPEG image quality (0 - 100)",
+    type=int,
+    default=90,
 )
 
 
