@@ -330,9 +330,10 @@ class CropCanvas(Canvas):
 
 
 class AcceptCroppedImageDialog(Dialog):
-    def __init__(self, image, settings, *args, **kwargs):
+    def __init__(self, image, settings, org_image_name, *args, **kwargs):
         self.image = image
         self.settings = settings
+        self.org_image_name = org_image_name
         if "title" not in kwargs:
             kwargs["title"] = "Accept cropped image?"
         super().__init__(*args, **kwargs)
@@ -361,7 +362,9 @@ class AcceptCroppedImageDialog(Dialog):
         self.settings.output_directory.mkdir(parents=True, exist_ok=True)
         save_path = (
             self.settings.output_directory
-            / self.settings.file_name_template.format(now=datetime.now())
+            / self.settings.file_name_template.format(
+                now=datetime.now(), image=Path(self.org_image_name).stem
+            )
         )
         self.image.save(save_path, quality=self.settings.quality)
         logging.info(f"Saved {save_path}")
@@ -392,7 +395,10 @@ class CropGalleryFrame(Frame):
 
     def on_image_cropped(self, event):
         AcceptCroppedImageDialog(
-            event.widget.crop_selected_rectangle(), self.settings, event.widget
+            event.widget.crop_selected_rectangle(),
+            self.settings,
+            self.filenames[self.index],
+            event.widget,
         )
 
     def on_previous_image(self, event):
@@ -439,9 +445,10 @@ parser.add_argument(
 parser.add_argument(
     "-f",
     "--file-name-template",
-    help="Python format string for cropped image file name",
+    help="Python format string for cropped image file name; "
+    "use {image} for original image file name stem and {now} for current time",
     type=str,
-    default="CroppedImage_{now:%Y-%m-%d_%H-%M-%S}.jpg",
+    default="{image}_crop_{now:%Y-%m-%d_%H-%M-%S}.jpg",
 )
 parser.add_argument(
     "-q",

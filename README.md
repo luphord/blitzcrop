@@ -42,6 +42,7 @@ sudo apt install python3-tk python3-pil python3-pil.imagetk
 ## History
 
 ### 0.3.0 (not yet)
+* Specify file name template by `-f/--file-name-template` with placeholders `image` and `now`
 * Specify image quality by `-q/--quality`
 
 ### 0.2.1 (2022-10-10)
