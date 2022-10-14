@@ -366,7 +366,7 @@ class AcceptCroppedImageDialog(Dialog):
                 now=datetime.now(), image=Path(self.org_image_name).stem
             )
         )
-        self.image.save(save_path, quality=self.settings.quality)
+        self.image.save(save_path, format="JPEG", quality=self.settings.quality)
         logging.info(f"Saved {save_path}")
 
 
