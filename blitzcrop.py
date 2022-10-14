@@ -361,7 +361,7 @@ class AcceptCroppedImageDialog(Dialog):
         self.settings.output_directory.mkdir(parents=True, exist_ok=True)
         save_path = (
             self.settings.output_directory
-            / f"CroppedImage_{datetime.now():%Y-%m-%d_%H-%M-%S}.jpg"
+            / self.settings.file_name_template.format(now=datetime.now())
         )
         self.image.save(save_path, quality=self.settings.quality)
         logging.info(f"Saved {save_path}")
@@ -435,6 +435,13 @@ parser.add_argument(
     help="Output directory for cropped images",
     type=Path,
     default=Path(".") / "cropped",
+)
+parser.add_argument(
+    "-f",
+    "--file-name-template",
+    help="Python format string for cropped image file name",
+    type=str,
+    default="CroppedImage_{now:%Y-%m-%d_%H-%M-%S}.jpg",
 )
 parser.add_argument(
     "-q",
