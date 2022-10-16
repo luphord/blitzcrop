@@ -249,6 +249,7 @@ class CropCanvas(Canvas):
         self.selected_rectangle = None
         self.bind("<Button-1>", self.on_click)
         self.bind("<Button-3>", self.on_right_click)
+        self.bind("<Escape>", self.on_right_click)
         self.bind("<B1-Motion>", self.on_drag)
         self.bind("<Motion>", self.on_mousemove)
         self.bind("<Configure>", self.on_resize)
