@@ -248,6 +248,7 @@ class CropCanvas(Canvas):
         self.rl = None
         self.selected_rectangle = None
         self.bind("<Button-1>", self.on_click)
+        self.bind("<Button-3>", self.on_right_click)
         self.bind("<B1-Motion>", self.on_drag)
         self.bind("<Motion>", self.on_mousemove)
         self.bind("<Configure>", self.on_resize)
@@ -282,6 +283,10 @@ class CropCanvas(Canvas):
         self._delete_circle_and_rectangle()
         self.rl = None
         self.lu = CanvasPoint(event.x, event.y)
+
+    def on_right_click(self, event):
+        self._delete_circle_and_rectangle()
+        self.rl = self.lu = None
 
     def on_drag(self, event):
         self._delete_circle_and_rectangle()
