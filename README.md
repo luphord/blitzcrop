@@ -42,6 +42,7 @@ sudo apt install python3-tk python3-pil python3-pil.imagetk
 ## History
 
 ### 0.3.0 (not yet)
+* Abort rectangle selection by clicking with the *right* mouse button or by pressing `Esc`
 * Specify file name template by `-f/--file-name-template` with placeholders `image` and `now`
 * Specify image quality by `-q/--quality`
 
