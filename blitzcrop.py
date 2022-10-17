@@ -373,8 +373,9 @@ class AcceptCroppedImageDialog(Dialog):
                 now=datetime.now(), image=Path(self.org_image_name).stem
             )
         )
+        image_info = {} if self.settings.forget_metadata else self.image_info
         self.image.save(
-            save_path, format="JPEG", quality=self.settings.quality, **self.image_info
+            save_path, format="JPEG", quality=self.settings.quality, **image_info
         )
         logging.info(f"Saved {save_path}")
 
@@ -468,6 +469,13 @@ parser.add_argument(
     help="JPEG image quality (0 - 100)",
     type=int,
     default=90,
+)
+parser.add_argument(
+    "-m",
+    "--forget-metadata",
+    help="Forget original image metadata for cropped image",
+    default=False,
+    action="store_true",
 )
 
 
