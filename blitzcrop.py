@@ -336,8 +336,9 @@ class CropCanvas(Canvas):
 
 
 class AcceptCroppedImageDialog(Dialog):
-    def __init__(self, image, settings, org_image_name, *args, **kwargs):
+    def __init__(self, image, image_info, settings, org_image_name, *args, **kwargs):
         self.image = image
+        self.image_info = image_info
         self.settings = settings
         self.org_image_name = org_image_name
         if "title" not in kwargs:
@@ -372,7 +373,9 @@ class AcceptCroppedImageDialog(Dialog):
                 now=datetime.now(), image=Path(self.org_image_name).stem
             )
         )
-        self.image.save(save_path, format="JPEG", quality=self.settings.quality)
+        self.image.save(
+            save_path, format="JPEG", quality=self.settings.quality, **self.image_info
+        )
         logging.info(f"Saved {save_path}")
 
 
@@ -383,11 +386,13 @@ class CropGalleryFrame(Frame):
         self.settings = settings
         assert self.filenames, "At least one image is required"
         self.index = 0
+        self.image_info = None
         self.canvas = None
         self._setup_crop_canvas()
 
     def _setup_crop_canvas(self):
         image = Image.open(self.filenames[self.index])
+        self.image_info = image.info
         if self.canvas:
             self.canvas.destroy()
         self.canvas = CropCanvas(image, self, bg="black")
@@ -402,6 +407,7 @@ class CropGalleryFrame(Frame):
     def on_image_cropped(self, event):
         AcceptCroppedImageDialog(
             event.widget.crop_selected_rectangle(),
+            self.image_info,
             self.settings,
             self.filenames[self.index],
             event.widget,
